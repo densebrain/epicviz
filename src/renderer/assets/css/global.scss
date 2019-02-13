@@ -1,0 +1,52 @@
+//@import "~highlight.js/styles/dark.css";
+//@import "~highlight.js/styles/github.css";
+//@import "~highlight.js/styles/darkula.css";
+//@import "~codemirror/lib/codemirror.css";
+//@import "~codemirror/theme/darcula.css";
+html, body, #app {
+	font-family: "AvenirNext";
+	font-weight: 400;
+	font-size: 14px;
+	width: 100vw;
+	height: 100vh;
+	overflow: hidden;
+	padding: 0;
+	margin: 0;
+	border: 0;
+}
+
+div[role=tooltip] {
+  z-index: 10000;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Turn on custom 8px wide scrollbar */
+::-webkit-scrollbar {
+	display: none;
+	//width: 8px; /* 1px wider than Lion. */
+	///* This is more usable for users trying to click it. */
+	//background-color: rgba(0,0,0,0);
+	//-webkit-border-radius: 100px;
+}
+/* hover effect for both scrollbar area, and scrollbar 'thumb' */
+::-webkit-scrollbar:hover {
+	display: none;
+	background-color: rgba(0, 0, 0, 0.09);
+}
+
+/* The scrollbar 'thumb' ...that marque oval shape in a scrollbar */
+::-webkit-scrollbar-thumb:vertical {
+	/* This is the EXACT color of Mac OS scrollbars.
+		 Yes, I pulled out digital color meter */
+	display: none;
+	//background: rgba(0,0,0,0.5);
+	//-webkit-border-radius: 100px;
+}
+::-webkit-scrollbar-thumb:vertical:active {
+	display: none;
+	//background: rgba(0,0,0,0.61); /* Some darker color when you click it */
+	//-webkit-border-radius: 100px;
+}

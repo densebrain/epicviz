@@ -1,0 +1,8 @@
+
+langservers:
+  javascript:
+    - node
+    - node_modules/javascript-typescript-langserver/lib/language-server-stdio
+  typescript:
+    - node
+    - node_modules/javascript-typescript-langserver/lib/language-server-stdio
