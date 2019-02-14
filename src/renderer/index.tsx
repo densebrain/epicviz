@@ -63,6 +63,15 @@ $("body, #app").css({
   padding: 0
 })
 
+$('body').append($(`<div class="diagnostics"></div>
+
+    <div class="logging"></div>
+
+    <div class="completion"></div>
+
+    <div class="error"></div>
+`))
+
 let rendered = false
 
 async function renderRoot():Promise<void> {

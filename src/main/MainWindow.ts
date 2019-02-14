@@ -51,7 +51,7 @@ export async function checkMainWindow():Promise<BrowserWindow> {
 	mainWindow = new BrowserWindow({
 
 		webPreferences: {
-			webSecurity: true,
+			webSecurity: false,
 			nodeIntegration: true,
 			nodeIntegrationInWorker: true,
 			nodeIntegrationInSubFrames: true

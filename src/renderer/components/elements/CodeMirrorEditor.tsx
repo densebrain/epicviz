@@ -4,11 +4,13 @@ import 'codemirror/mode/htmlmixed/htmlmixed';
 import 'codemirror/mode/css/css';
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/theme/darcula.css';
-// The plugin currently requires the show-hint extension from CodeMirror, which must be
-// installed by the app that uses the LSP connection
 import 'codemirror/addon/hint/show-hint.css';
 import 'codemirror/addon/hint/show-hint';
+// The plugin currently requires the show-hint extension from CodeMirror, which must be
+// installed by the app that uses the LSP connection
 
+// import 'codemirror/addon/tern/tern.css';
+// import 'codemirror/addon/tern/tern';
 // You are required to install the show-hint addon
 // import 'codemirror/addon/hint/show-hint.css'
 // import 'codemirror/addon/hint/show-hint'
@@ -33,6 +35,7 @@ import {getCommandManager} from "common/command-manager"
 import {lighten} from "@material-ui/core/styles/colorManipulator"
 import * as Path from "path"
 import * as Fs from "fs"
+import {attach} from "common/languages/javascript"
 
 const
   Sh = require("shelljs"),
@@ -41,8 +44,9 @@ const
 const
   LanguageServerPort = process.env.LANGUAGE_SERVER_PORT,
   //Tmp =
-  TmpDir = Sh.tempdir()//Fs.mkdtempSync("epicviz")
+  TmpDir = Path.resolve(Sh.tempdir(),`epicviz-${Date.now()}`)//Fs.mkdtempSync("epicviz")
 
+Sh.mkdir('-p',TmpDir)
 log.info(`Using temp dir: ${TmpDir}`)
 
 function mkTempNewFile():string | null {
@@ -137,16 +141,14 @@ export default StyledComponent<P>(baseStyles)(function CodeMirrorEditor(props: P
       container = textareaRef.current,
       wrapper = wrapperRef.current
 
-    if (!wrapper || !container || codeMirrorRef.current) return () => {}
+    if (!wrapper || codeMirrorRef.current) return () => {}
 
     log.debug("Recreating code mirror")
-    const newEditor = codeMirrorRef.current = CodeMirror.fromTextArea(container, {
+    const newEditor = codeMirrorRef.current = CodeMirror(wrapper, {
       value: value || "test",
       //autofocus: autoFocus,
-      // lineWrapping: true,
-      // lineNumbers: true,
-      gutters: ['CodeMirror-lsp'],
-
+      lineWrapping: true,
+      lineNumbers: true,
       mode: language,
       theme: "darcula"
     })
@@ -174,36 +176,15 @@ export default StyledComponent<P>(baseStyles)(function CodeMirrorEditor(props: P
       languageId: language
     }
 
-    // The WebSocket is passed in to allow testability
-    const jsConnection = new LspWsConnection(js)
-      .connect(new WebSocket(js.serverUri))
-
-    // The adapter is what allows the editor to provide UI elements
-    const jsAdapter = new CodeMirrorAdapter(jsConnection, {
-      // UI-related options go here, allowing you to control the automatic features of the LSP, i.e.
-      //suggestOnTriggerCharacters: false
-      quickSuggestionsDelay: 50
-    }, newEditor)
-
-    // You can also provide your own hooks:
-    jsConnection.on('error', (e) => {
-      log.error(e)
-    })
-
-    // You might need to provide your own hooks to handle navigating to another file, for example:
-    jsConnection.on('goTo', (locations) => {
-      // Do something to handle the URI in this object
-    })
-
-
-
+    attach(newEditor)
     return () => {
-      jsAdapter.remove();
-      jsConnection.close();
+      //newEditor.cleanUp()
     }
   }, [wrapperRef, textareaRef])
 
   return <div ref={wrapperRef} className={mergeClasses(classes.root, className)}>
-    <textarea ref={textareaRef} {...other}/>
+    {/*<textarea ref={textareaRef} {...other}/>*/}
   </div>
 })
+
+

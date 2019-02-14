@@ -27,7 +27,8 @@ function makeConfig(isMain) {
       /octokit/,
       /hot-loader/,
       /node-fetch/,
-      //"react",
+      /\/tern\//,
+      /acorn/,
       //"react-dom",
       // /babel/,
       /react-hot/,
@@ -96,8 +97,15 @@ function makeConfig(isMain) {
     cache: true,
 
     module: {
-
+      noParse: [/\/tern\//],
       rules: [
+        {
+          include: /worker\.js$/,
+          loaders: ['worker-loader?inline=true','babel-loader'],
+          // options: { inline: true }
+        },
+        
+  
         // {
         //   test: /\.js$/,
         //   include: /monaco-editor/,
@@ -111,10 +119,10 @@ function makeConfig(isMain) {
         //   enforce: "pre"
         // }
         // {
-        //   test: /\.js$/,
-        //   exclude: /(typelogger|node_modules)/,
-        //   use: ["source-map-loader"],
-        //   enforce: "pre"
+        //   include: /\.js$/,
+        //   exclude: [/\/tern\//,/tern\.js$/],
+        //   use: ["babel-loader"],
+        //
         // },
         // {
         //   test: /^\.(scss|css)$/,

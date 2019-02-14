@@ -2,7 +2,7 @@
 langservers:
   javascript:
     - node
-    - node_modules/javascript-typescript-langserver/lib/language-server-stdio
+    - './node_modules/javascript-typescript-langserver/lib/language-server-stdio.js'
   typescript:
     - node
-    - node_modules/javascript-typescript-langserver/lib/language-server-stdio
+    - './node_modules/javascript-typescript-langserver/lib/language-server-stdio.js'
