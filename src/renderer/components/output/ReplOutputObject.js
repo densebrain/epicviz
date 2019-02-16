@@ -4,6 +4,7 @@ import ReplOutput from './ReplOutput';
 import ReplDOM from './ReplDOM';
 import ReplOutputGridViewer from './ReplOutputGridViewer';
 import ReplOutputChartViewer from './ReplOutputChartViewer';
+import ReplCommon from "./ReplCommon"
 
 
 export default class ReplOutputObject extends React.Component {

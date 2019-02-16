@@ -11,7 +11,7 @@ import {
 import {isPromise} from "typeguard"
 import {npmInstall} from "common/languages/javascript/GlobalEditorAPI"
 import delay from "common/util/Delay"
-
+import {realRequire} from "common/util/Require"
 const ctx: Worker = self as any
 const
   log = getLogger(__filename),
@@ -22,13 +22,8 @@ Object.assign(global,{
 })
 
 const
-  realRequire = __non_webpack_require__,
   Path = realRequire("path"),
-  Module = realRequire("module"),
-  Process = realRequire("process"),
-  workerRequire = Module.createRequireFromPath(
-    Path.resolve(Process.cwd(), "node_modules")
-  )
+  Module = realRequire("module")
 
 Object.assign(global,{
   window: global
