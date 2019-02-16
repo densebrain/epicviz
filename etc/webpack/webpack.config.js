@@ -27,8 +27,8 @@ function makeConfig(isMain) {
       /octokit/,
       /hot-loader/,
       /node-fetch/,
-      /\/tern\//,
-      /acorn/,
+      ///\/tern\//,
+      ///acorn/,
       //"react-dom",
       // /babel/,
       /react-hot/,
@@ -46,7 +46,8 @@ function makeConfig(isMain) {
   const config = {
     devtool: "source-map",
     output: {
-      devtoolModuleFilenameTemplate: "file://[absolute-resource-path]"
+      devtoolModuleFilenameTemplate: "file://[absolute-resource-path]",
+      globalObject: "this"
     },
     resolve: {
       alias: {
@@ -67,7 +68,7 @@ function makeConfig(isMain) {
       // ENV
       new DefinePlugin(DefinedEnv),
       new Webpack.NamedModulesPlugin(),
-      new Webpack.optimize.LimitChunkCountPlugin({ maxChunks: 1 }),
+      //new Webpack.optimize.LimitChunkCountPlugin({ maxChunks: 1 }),
       // Ignore require() calls in vs/language/typescript/lib/typescriptServices.js
       // new Webpack.IgnorePlugin(
       //   /^((fs)|(path)|(os)|(crypto)|(source-map-support))$/,
@@ -88,24 +89,25 @@ function makeConfig(isMain) {
 
     },
 
-    optimization: {
-      minimize: false,
-      namedModules: true,
-      concatenateModules: true,
-    },
+    // optimization: {
+    //   minimize: false,
+    //   namedModules: true,
+    //   concatenateModules: true,
+    // },
 
     cache: true,
 
     module: {
-      noParse: [/\/tern\//],
+      //noParse: [/\/tern\//],
+      //noParse: [/acorn/],
       rules: [
-        {
-          include: /worker\.js$/,
-          loaders: ['worker-loader?inline=true','babel-loader'],
-          // options: { inline: true }
-        },
-        
-  
+        // {
+        //   include: /worker\.js$/,
+        //   loaders: ['worker-loader'],
+        //   // options: { inline: true }
+        // },
+
+
         // {
         //   test: /\.js$/,
         //   include: /monaco-editor/,
@@ -120,7 +122,7 @@ function makeConfig(isMain) {
         // }
         // {
         //   include: /\.js$/,
-        //   exclude: [/\/tern\//,/tern\.js$/],
+        //   exclude: [/acorn\//],
         //   use: ["babel-loader"],
         //
         // },
@@ -140,6 +142,39 @@ function makeConfig(isMain) {
         //     }
         //   }]
         // },
+        {
+          test: /\.js$/,
+          exclude: [/node_modules/],
+          include: [/renderer/],
+          use: [{
+            //Path.resolve(rootPath,"node_modules",
+            loader: "babel-loader",
+            options: {
+              cacheDirectory: true,
+              babelrc: false,
+              presets: [
+                [
+                  "@babel/preset-env",
+                  {
+                    debug: true,
+                    targets: {
+                      electron: "4.0.2"
+                    }
+                  }
+                ],
+                "@babel/preset-react"
+              ],
+              plugins: [
+                // plugin-proposal-decorators is only needed if you're using experimental decorators in TypeScript
+                //["@babel/plugin-proposal-decorators", {decoratorsBeforeExport: true}],
+                ["@babel/plugin-proposal-class-properties", {loose: true}],
+                ["@babel/plugin-syntax-dynamic-import"],
+                //["react-hot-loader/babel"]
+              ],
+              sourceMaps: "both"
+            }
+          }]
+        },
         // {
         //   test: /\.jsx?$/,
         //   include: [/monaco-editor/,/vscode/],

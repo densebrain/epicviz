@@ -3,6 +3,7 @@ import {convertEnumValuesToString} from "common/ObjectUtil"
 export enum CommonElement {
   App,
   Settings,
+  Repl,
   Dialog,
   NotificationsList
 }

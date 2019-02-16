@@ -1,0 +1,37 @@
+@import 'themes';
+@import 'repl-common';
+
+@mixin replEntryStatus($theme) {
+  .repl-entry-status {
+    padding-right: 8px;
+
+    .repeat,
+    .error,
+    .plus,
+    .minus,
+    .remove {
+      padding-left: 6px;
+      cursor: pointer;
+    }
+
+    .repeat {
+      color: if($theme == $dark-theme, $dark-app-entry-status-redo-color, $lt-app-entry-status-redo-color);
+    }
+
+    .error {
+      color: if($theme == $dark-theme, $dark-app-entry-status-error-color, $lt-app-entry-status-error-color);
+    }
+
+    .minus {
+      color: if($theme == $dark-theme, $dark-app-entry-status-minus-color, $lt-app-entry-status-minus-color);
+    }
+
+    .plus {
+      color: if($theme == $dark-theme, $dark-app-entry-status-plus-color, $lt-app-entry-status-plus-color);
+    }
+
+    .remove {
+      color: if($theme == $dark-theme, $dark-app-entry-status-remove-color, $lt-app-entry-status-remove-color);
+    }
+  }
+}

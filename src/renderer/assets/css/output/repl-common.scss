@@ -1,0 +1,88 @@
+@import 'themes';
+
+
+// google font
+//@font-face {
+//  font-family: 'Josefin Sans';
+//  font-style: normal;
+//  font-weight: 400;
+//  src: url('../fonts/Josefin_Sans/JosefinSans-Regular.ttf');
+//  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2212, U+2215, U+E0FF, U+EFFD, U+F000;
+//}
+//
+//@font-face {
+//  font-family: 'Droid Sans Mono';
+//  font-style: normal;
+//  font-weight: 400;
+//  src: url('../fonts/Droid_Sans_Mono/DroidSansMono.ttf');
+//  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2212, U+2215, U+E0FF, U+EFFD, U+F000;
+//}
+//
+//@font-face {
+//  font-family: 'FiraCode';
+//  font-style: normal;
+//  font-weight: 400;
+//  src: url('../fonts/FiraCode/FiraCode-Regular.otf');
+//}
+
+@mixin fullHeight() {
+  height: calc(100vh - (#{$app-font-size} + 20px));
+}
+
+@mixin notSelectable() {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+@mixin selectable() {
+  -webkit-user-select: initial;
+  user-select: initial;
+}
+
+@mixin entryLayout() {
+  flex: 1;
+  min-height: $app-font-size;
+  padding-left: 10px;
+  margin: 0px;
+}
+
+@mixin arrowIcon() {
+  width: 10px;
+  text-align: center;
+}
+
+@mixin editor() {
+  outline: none;
+  margin: 0;
+  word-wrap: break-word;
+  word-break: break-word;
+  white-space: pre-wrap;
+}
+
+.dull {
+  opacity: 0.7;
+}
+
+.close {
+  color: $app-text-error-color;
+}
+
+.flex {
+  flex: 1;
+}
+
+button {
+  margin-right: 5px;
+}
+
+.read-error {
+  color: $app-text-error-color;
+}
+
+small {
+  font-size: 8px;
+}
+
+[disabled="true"] {
+  cursor: not-allowed !important;
+}

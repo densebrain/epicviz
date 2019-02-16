@@ -1,0 +1,122 @@
+// light theme
+$lt-app-background-color: whitesmoke;
+$lt-app-prompt-background-color: darken($lt-app-background-color, 5%);
+$lt-app-color: #DE8787;
+
+$lt-app-suggestion-background-color: $lt-app-background-color;
+$lt-app-suggestion-border-color: silver;
+$lt-app-suggestion-entry-border-color: #C2BFBF;
+$lt-app-suggestion-type-background-color: transparent;
+$lt-app-suggestion-type-color: #FF0044;
+$lt-app-suggestion-type-font-family: "Droid Sans Mono";
+$lt-app-suggestion-type-expect-color: $lt-app-color;
+$lt-app-suggestion-type-hightlight-color: #7DC5EA;
+
+$lt-app-prompt-active-icon-color: darkgoldenrod;
+$lt-app-prompt-spin-color: yellowgreen;
+
+$lt-app-entry-icon-color: rgb(255, 0, 87);
+$lt-app-entry-icon-copy-color: powderblue;
+$lt-app-entry-status-redo-color: #A2A0A0;
+$lt-app-entry-status-plus-color: rgb(78, 184, 78);
+$lt-app-entry-status-remove-color: tomato;
+$lt-app-entry-status-error-color: rgb(240, 92, 92);
+$lt-app-entry-status-minus-color: rgb(252, 181, 50);
+
+$lt-app-status-bar-background-color: darken(whitesmoke, 10%);
+$lt-app-status-bar-command-color: rgb(73, 197, 73);
+$lt-app-status-bar-error-color: rgb(208, 95, 75);
+$lt-app-status-bar-handle-color: rgb(253, 190, 65);
+$lt-app-status-bar-message-color: #676464;
+$lt-app-status-bar-mode-color: #C3C378;
+$lt-app-status-bar-console-color: #0378F9;
+$lt-app-status-bar-console-notification-color: #E20B43;
+$lt-app-status-bar-console-release-notification-color: dodgerblue;
+$lt-app-status-bar-run-help-color: #7D7B7B;
+$lt-app-status-bar-run-color: #8E8E0D;
+$lt-app-status-bar-cursor-pos-color: grey;
+
+$lt-app-water-mark-color: rgba(192, 192, 192, 0.3);
+$lt-app-entry-ellipsis-color: crimson;
+
+$lt-app-console-resize-handle-color: #DEDBDE;
+$lt-app-console-background-color: whitesmoke;
+$lt-app-console-color: #DE8787;
+$lt-app-console-drag-lines-color: whitesmoke;
+
+$lt-app-console-message-filter-border-color:#B3B1B1;
+$lt-app-console-message-entry-border-color: #E0DDDD;
+$lt-app-console-message-entry-info-color: #216FEC;
+$lt-app-console-message-entry-warn-color: #E4BF29;
+$lt-app-console-message-entry-warn-bg-color: #f5e8b1;
+$lt-app-console-message-entry-error-color: #F54A4A;
+$lt-app-console-message-dup-count-bg-color: #E8659B;
+$lt-app-console-message-dup-count-color: whitesmoke;
+
+$lt-app-entry-message-output-expand-collapse-color: #C5C1C3;
+
+$lt-app-entry-message-output-arr-idx-color: #EF7C90;
+$lt-app-entry-message-output-arr-fold-color: #DB64F1;
+$lt-app-entry-message-output-primitive-color: cadetblue;
+$lt-app-preference-background-color: $lt-app-background-color;
+$lt-app-preference-color: dimgrey;
+$lt-app-preference-header-bg-color: $lt-app-status-bar-background-color;
+$lt-app-preference-entry-border-color: rgba(224, 223, 220, 0.97);
+
+$lt-app-preference-close-color: tomato;
+$lt-app-integer-mode-color: crimson;
+$lt-app-integer-mode-title-color: grey;
+
+$lt-app-regex-playground-border-color: #B5B2B1;
+$lt-app-regex-playground-color: crimson;
+$lt-app-regex-playground-placeholder-color: grey;
+$lt-app-pattern-matched-bg-color: yellow;
+$lt-app-regex-fold-color: crimson;
+
+$lt-app-data-explorer-label-color: crimson;
+$lt-app-data-buffer-explorer-color: dimgrey;
+$lt-app-data-buffer-mask-color: tomato;
+$lt-app-data-buffer-out-bg-color: tomato;
+$lt-app-data-buffer-odd-in-ascii-color: yellowgreen;
+$lt-app-data-buffer-odd-in-color: goldenrod;
+$lt-app-data-buffer-even-in-color: blanchedalmond;
+$lt-app-data-buffer-even-in-ascii-color: gold;
+
+$lt-app-inactive-html-logo-color: crimson;
+$lt-app-active-html-logo-color: grey;
+
+$lt-app-crypto-lock-color: crimson;
+$lt-app-crypto-unlock-color: grey;
+
+$lt-app-chart-icon-color: #DE8787;
+$lt-app-chart-icon-selected-color: rgba(222, 135, 135, 0.55);
+$lt-app-chart-stroke-color: currentColor;
+$lt-app-chart-text-color: currentColor;
+
+$lt-app-download-color: forestgreen;
+$lt-app-status-bar-lang-color: indianred;
+$lt-app-date-icon-color: darkseagreen;
+
+$lt-app-data-grid-header-color: $lt-app-entry-message-output-arr-idx-color;
+$lt-app-data-grid-inner-border-color: #D9DCD8;
+$lt-app-data-grid-border-color: #ABA9A9;
+$lt-app-entry-message-output-bind-color: slategrey;
+
+$lt-app-move-up-color: olivedrab;
+$lt-app-move-down-color: #cccc4c;
+
+$lt-app-console-env-no-data-color: #ADACAC;
+$lt-app-console-env-data-heading-color: #E4E2E2;
+
+$lt-app-stack-error-at-color: #828181;
+$lt-app-stack-error-function-color: #198EE6;
+$lt-app-stack-error-file-color: #D27838;
+$lt-app-stack-error-row-color: deepskyblue;
+$lt-app-stack-error-column-color: deepskyblue;
+$lt-app-stack-error-name-color: #F52626;
+$lt-app-stack-error-description-color: #F5776E;
+
+$lt-app-cljs-doc-desc-color: #9E9E9E;
+$lt-app-cljs-doc-header-color: #BE8DFB;
+$lt-app-tag-color: white;
+$lt-app-tag-bg-color: #C0CA33;

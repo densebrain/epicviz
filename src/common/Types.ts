@@ -4,7 +4,19 @@ export type StringMap<V> = { [key:string]:V }
 
 export type StringOrNumber = string | number
 
-export type Pair<T1, T2> = [T1, T2]
+export interface IPair<T1 = any, T2 = any> {
+	readonly first:T1
+	readonly second:T2
+}
+
+export class Pair<T1 = any, T2 = any> implements IPair<T1,T2>{
+	constructor(public readonly first:T1,public readonly second:T2) {
+	}
+}
+
+export function makePair<T1 = any,T2 = any>(first:T1,second:T2):IPair {
+	return new Pair<T1,T2>(first,second)
+}
 
 export type FunctionOrValue<T> = (() => T) | T | null
 
@@ -30,7 +42,7 @@ export function makeDataSet<T>(
 		data,
 		total,
 		ready: total > -1,
-		loadedRange: [loadedStart, loadedEnd],
+		loadedRange: makePair(loadedStart, loadedEnd),
 		loading: false,
 		idProperty
 	}

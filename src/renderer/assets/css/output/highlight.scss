@@ -1,0 +1,27 @@
+@mixin stackTraceHighlight($theme) {
+  .stack-error-at {
+    color: if($theme == $dark-theme, $dark-app-stack-error-at-color, $lt-app-stack-error-at-color);
+  }
+  .stack-error-function {
+    color: if($theme == $dark-theme, $dark-app-stack-error-function-color, $lt-app-stack-error-function-color);
+  }
+
+  .stack-error-file {
+    color: if($theme == $dark-theme, $dark-app-stack-error-file-color, $lt-app-stack-error-file-color);
+  }
+
+  .stack-error-row {
+    color: if($theme == $dark-theme, $dark-app-stack-error-row-color, $lt-app-stack-error-row-color);
+  }
+  .stack-error-column {
+    color: if($theme == $dark-theme, $dark-app-stack-error-column-color, $lt-app-stack-error-column-color);
+  }
+
+  .error-name {
+    color: if($theme == $dark-theme, $dark-app-stack-error-name-color, $lt-app-stack-error-name-color);
+  }
+
+  .error-description {
+    color: if($theme == $dark-theme, $dark-app-stack-error-description-color, $lt-app-stack-error-description-color);
+  }
+}

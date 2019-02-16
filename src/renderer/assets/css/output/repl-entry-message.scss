@@ -1,0 +1,152 @@
+@import 'themes';
+@import 'repl-common';
+@import 'highlight';
+@import 'repl-output';
+@import 'repl-source-file';
+
+@mixin replEntryMessage($theme) {
+  .repl-entry-message {
+    @include entryLayout();
+
+    &.repl-notebook {
+      padding: 0px;
+      .repl-entry-message-output {
+        padding: 5px 25px 5px 25px;
+      }
+    }
+    .repl-entry-command-container {
+      display: flex;
+      .tag {
+        background-color: if($theme == $dark-theme, $dark-app-tag-bg-color, $lt-app-tag-bg-color);
+        color: if($theme == $dark-theme, $dark-app-tag-color, $lt-app-tag-color);
+        border-radius: 4px;
+        padding-left: 5px;
+        padding-right: 5px;
+        padding-top: 1px;
+        padding-bottom: 1px;
+        font-size: 0.75em;
+        height: 80%;
+        position: relative;
+        top: 3px;
+        font-weight: 900;
+        margin-left: 6px;
+        cursor: default;
+      }
+
+      .execution-time {
+        position: relative;
+        top: 3px;
+        &.green {
+          color: $app-green-execution-color;
+        }
+        &.red {
+          color: $app-red-execution-color;
+        }
+        &.orange {
+          color: $app-orange-execution-color;
+        }
+      }
+
+      .repl-entry-message-command {
+        flex: 1;
+        min-height: $app-font-size;
+        word-wrap: break-word;
+        word-break: break-word;
+        white-space: pre-wrap;
+      }
+
+      .ellipsis {
+        &:after {
+          content: '\2026';
+          color: if($theme == $dark-theme, $dark-app-entry-ellipsis-color, $lt-app-entry-ellipsis-color);
+        }
+      }
+    }
+
+    .repl-entry-message-output {
+      word-wrap: break-word;
+      word-break: break-word;
+      white-space: pre-wrap;
+      padding: 5px 0;
+      position: relative;
+      cursor: default;
+
+      @include replSourceFile($theme);
+
+      .fa-clone {
+        @include notSelectable();
+        position: absolute;
+        color: if($theme == $dark-theme, $dark-app-entry-icon-copy-color, $lt-app-entry-icon-copy-color);
+        font-size: 0.7em;
+        position: relative;
+        font-weight: 900;
+        left: -10px;
+        padding-top: 4px;
+        top: 0;
+        cursor: pointer;
+
+        &:active {
+          top: 3px;
+        }
+      }
+
+      .repl-entry-message-output-function {
+        .fa {
+          padding-right: 10px;
+          padding-top: 4px;
+          color: if($theme == $dark-theme, $dark-app-entry-message-output-expand-collapse-color, $lt-app-entry-message-output-expand-collapse-color);
+        }
+        .fa-minus-square-o ~ img ~ span {
+          display: block;
+        }
+        .es-img {
+          padding-right: 5px;
+          height: 1em;
+          width: 1em;
+        }
+      }
+
+      @include replOutput($theme);
+      .repl-entry-output-error {
+        .repl-entry-output-error-message {
+          .fa-play {
+            padding-right: 2px;
+            color: if($theme == $dark-theme, $dark-app-entry-message-output-arr-fold-color, $lt-app-entry-message-output-arr-fold-color);
+          }
+          .repl-entry-output-error-message-heading {
+            padding-left: 5px;
+          }
+          .syntax-error {
+            .repl-entry-output-error-message-heading {
+              padding-left: 0px;
+            }
+            .err-underline {
+              text-decoration: underline;
+              text-decoration-color: $app-text-error-color;
+              font-size: 0.9em;
+            }
+          }
+          .repl-entry-output-error-stack {
+            .repl-entry-output-error-stack-lines {
+              padding-left: calc(1em + 5px);
+            }
+          }
+        }
+
+        @include stackTraceHighlight($theme);
+      }
+
+      .promise-object {
+        .promise-status, .promise-value {
+          color: if($theme == $dark-theme, $dark-app-entry-message-output-primitive-color, $lt-app-entry-message-output-primitive-color);
+        }
+      }
+
+      .primitive-object {
+        .primitive-key {
+          color: if($theme == $dark-theme, $dark-app-entry-message-output-primitive-color, $lt-app-entry-message-output-primitive-color);
+        }
+      }
+    }
+  }
+}

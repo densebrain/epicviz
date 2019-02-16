@@ -1,5 +1,5 @@
 import {IDialog} from "renderer/models/Dialog"
-import {createSelector, OutputSelector} from "reselect"
+import {createSelector, OutputSelector, Selector} from "reselect"
 import {DataState} from "common/store/state/DataState"
 import {IDataSet, makeDataSet} from "common/Types"
 import {ISearchChip, ISearchChipData, SearchProvider} from "renderer/search/Search"
@@ -7,6 +7,7 @@ import Dexie from "dexie"
 import db from "renderer/db/ObjectDatabase"
 import getLogger from "common/log/Logger"
 import * as _ from 'lodash'
+import UIState from "renderer/store/state/UIState"
 
 const log = getLogger(__filename)
 
@@ -15,6 +16,14 @@ export const dialogsSelector = (state:IRootRendererState):Array<IDialog> => stat
 export const currentDialogSelector =  (state:IRootRendererState):IDialog | null =>
   _.last(dialogsSelector(state))
 
+
+export function uiSelector<T>(
+  fn:(state:UIState, props?:any) => T
+):Selector<IRootState,T> {
+  return ((state:IRootState,props:any) => fn(state.UIState,props) as T) as any
+}
+
+export const projectDirSelector = uiSelector(state => state.projectDir || "")
 
 export type SearchChipSelector = OutputSelector<IRootRendererState, Array<ISearchChip>, (res: {[id:string]:Array<ISearchChipData>}) => Array<ISearchChip>>
 

@@ -12,7 +12,7 @@ import {
 } from "renderer/styles/ThemedStyles"
 import {ConnectedRouter} from "react-router-redux"
 import {Redirect, Route} from "react-router"
-import Workspace from "./Workspace"
+import Workspace from "./WorkspaceLayout"
 import {Selectors, StyledComponent} from "renderer/components/elements/StyledComponent"
 import DialogContainer from "renderer/components/DialogContainer"
 import StatusBar from "renderer/components/elements/StatusBar"

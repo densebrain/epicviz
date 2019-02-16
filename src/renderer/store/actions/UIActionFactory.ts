@@ -5,8 +5,7 @@ import {getValue} from "typeguard"
 import {DialogDefaults, IDialog} from "renderer/models/Dialog"
 import {getCommandManager} from "common/command-manager"
 import {ISearchChip} from "renderer/search/Search"
-import * as _ from 'lodash'
-import {AppState} from "common/store/state/AppState"
+import {ISnippet, Workspace} from "common/models/Workspace"
 
 const
   log = getLogger(__filename)
@@ -37,6 +36,28 @@ export class UIActionFactory extends ActionFactory<UIState, ActionMessage<UIStat
     } else if (!dialog && oldLength === 1) {
       getCommandManager().popStack()
     }
+  }
+
+  @ActionReducer()
+  setProjectDirAndWorkspace(projectDir: string,workspace:Workspace | null) {
+    return (state: UIState) => patchState(state, {
+      projectDir,
+      workspace
+    })
+  }
+
+  @ActionReducer()
+  patchWorkspace(workspace:Partial<Workspace>) {
+    return (state:UIState) => patchState(state,{
+      workspace: !state.workspace ? null : state.workspace.patch(workspace)
+    })
+  }
+
+  @ActionReducer()
+  patchSnippet(snippet:Partial<ISnippet>) {
+    return (state:UIState) => patchState(state,{
+      workspace: !state.workspace ? null : state.workspace.patchSnippet(snippet)
+    })
   }
 
   @ActionReducer()

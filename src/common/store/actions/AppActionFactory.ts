@@ -21,19 +21,6 @@ export class AppActionFactory extends ActionFactory<AppState, ActionMessage<AppS
   }
 
 
-
-
-  @ActionReducer()
-  setSelectedRepoId(selectedRepoId: number) {
-    return (state: AppState) => patchState(state, {
-      selectedRepoId,
-      enabledRepoIds: state.enabledRepoIds.includes(selectedRepoId) ?
-        state.enabledRepoIds :
-        [...state.enabledRepoIds,selectedRepoId]
-    })
-  }
-
-
   @ActionReducer()
   setConfig(config: IConfig) {
     return (state: AppState) => patchState(state, {config})
@@ -160,24 +147,5 @@ export class AppActionFactory extends ActionFactory<AppState, ActionMessage<AppS
     }
   }
 
-  @ActionReducer()
-  setDataSynced(type: DataType, ids: Array<number>, syncedAt: number) {
-    return (state: AppState) => {
-      const
-        syncs = {...state.syncs},
-        status = {...(syncs[type] || {type, records: {}})} as IDataSyncStatus
-
-      status.records = {...status.records}
-      ids.forEach(id => {
-        status.records[id] = {id, type, timestamp: syncedAt}
-      })
-
-      syncs[type] = status
-
-      return patchState(state, {
-        syncs
-      })
-    }
-  }
 
 }

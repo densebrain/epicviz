@@ -1,0 +1,123 @@
+// dark theme
+$dark-app-background-color: #1D1C1C;
+$dark-app-prompt-background-color: lighten($dark-app-background-color, 5%);
+$dark-app-color: whitesmoke;
+
+$dark-app-suggestion-background-color: $dark-app-background-color;
+$dark-app-suggestion-border-color: silver;
+$dark-app-suggestion-entry-border-color: #C2BFBF;
+$dark-app-suggestion-type-background-color: transparent;
+$dark-app-suggestion-type-color: #FF0044;
+$dark-app-suggestion-type-font-family: "Droid Sans Mono";
+$dark-app-suggestion-type-expect-color: $dark-app-color;
+$dark-app-suggestion-type-hightlight-color: #7DC5EA;
+
+$dark-app-prompt-active-icon-color: silver;
+$dark-app-prompt-spin-color: yellowgreen;
+
+$dark-app-entry-icon-color: rgb(255, 0, 87);
+$dark-app-entry-icon-copy-color: powderblue;
+$dark-app-entry-status-redo-color: silver;
+$dark-app-entry-status-plus-color: rgb(78, 184, 78);
+$dark-app-entry-status-remove-color: tomato;
+$dark-app-entry-status-error-color: rgb(240, 92, 92);
+$dark-app-entry-status-minus-color: rgb(252, 181, 50);
+
+$dark-app-status-bar-background-color: #3E3D3D;
+$dark-app-status-bar-command-color: rgb(73, 197, 73);
+$dark-app-status-bar-error-color: rgb(208, 95, 75);
+$dark-app-status-bar-handle-color: rgb(253, 190, 65);
+$dark-app-status-bar-message-color: rgb(173, 170, 170);
+$dark-app-status-bar-mode-color: #CCCC4C;
+$dark-app-status-bar-console-color: deepskyblue;
+$dark-app-status-bar-console-notification-color: #E20B43;
+$dark-app-status-bar-console-release-notification-color: dodgerblue;
+$dark-app-status-bar-run-help-color: #B3B1B1;
+$dark-app-status-bar-run-color: #CCCC4C;
+$dark-app-status-bar-cursor-pos-color: #B3B1B1;
+
+$dark-app-water-mark-color: rgba(192, 192, 192, 0.12);
+$dark-app-entry-ellipsis-color: crimson;
+
+$dark-app-console-resize-handle-color: rgb(68, 66, 67);
+$dark-app-console-background-color: #1D1C1C;
+$dark-app-console-color: white;
+$dark-app-console-drag-lines-color: #B5B3B0;
+
+$dark-app-console-message-filter-border-color:#B3B1B1;
+$dark-app-console-message-entry-border-color: #504F4F;
+$dark-app-console-message-entry-info-color: #79A4EA;
+$dark-app-console-message-entry-warn-color: #DADA31;
+$dark-app-console-message-entry-warn-bg-color: transparent;
+$dark-app-console-message-entry-error-color: #F36565;
+$dark-app-console-message-dup-count-bg-color: #E22B77;
+$dark-app-console-message-dup-count-color: whitesmoke;
+
+$dark-app-entry-message-output-expand-collapse-color: #C5C1C3;
+
+$dark-app-entry-message-output-arr-idx-color: #EF7C90;
+$dark-app-entry-message-output-arr-fold-color: #C3B04A;
+$dark-app-entry-message-output-primitive-color: cadetblue;
+$dark-app-preference-background-color: #1D1C1C;
+$dark-app-preference-color: #D4D2D2;
+$dark-app-preference-header-bg-color: lighten(#1D1C1C, 10%);
+$dark-app-preference-entry-border-color: #807F7E;
+
+$dark-app-preference-close-color: tomato;
+$dark-app-integer-mode-color: crimson;
+$dark-app-integer-mode-title-color: currentColor;
+
+$dark-app-regex-playground-border-color: rgba(20, 175, 237, 0.67);
+$dark-app-regex-playground-color: white;
+$dark-app-regex-playground-placeholder-color: whitesmoke;
+$dark-app-pattern-matched-bg-color: #B253E0;
+$dark-app-regex-fold-color: #F55C77;
+
+$dark-app-data-explorer-label-color: #F55C77;
+$dark-app-data-buffer-explorer-color: whitesmoke;
+$dark-app-data-buffer-mask-color: tomato;
+$dark-app-data-buffer-out-bg-color: tomato;
+$dark-app-data-buffer-odd-in-ascii-color: #3F46A5;
+$dark-app-data-buffer-odd-in-color: olive;
+$dark-app-data-buffer-even-in-color: #EC9D26;
+$dark-app-data-buffer-even-in-ascii-color: #A95C97;
+
+$dark-app-inactive-html-logo-color: #BB314B;
+$dark-app-active-html-logo-color: #BBBABA;
+
+$dark-app-crypto-lock-color: #BB314B;
+$dark-app-crypto-unlock-color: #BBBABA;
+
+$dark-app-chart-icon-color: white;
+$dark-app-chart-icon-selected-color: #969494;
+$dark-app-chart-stroke-color: darkgrey;
+$dark-app-chart-text-color: darkgrey;
+
+$dark-app-download-color: forestgreen;
+$dark-app-status-bar-lang-color: #CCCC4C;
+$dark-app-date-icon-color: darkseagreen;
+
+$dark-app-data-grid-header-color: $dark-app-entry-message-output-arr-idx-color;
+$dark-app-data-grid-inner-border-color: #484848;
+$dark-app-data-grid-border-color: #6F6E6D;
+$dark-app-entry-message-output-bind-color: #A95C97;
+
+$dark-app-move-up-color: olivedrab;
+$dark-app-move-down-color: #cccc4c;
+
+$dark-app-console-env-no-data-color: #ADACAC;
+$dark-app-console-env-data-heading-color: #464545;
+
+$dark-app-stack-error-at-color: #C3C3C3;
+$dark-app-stack-error-function-color: #C0CA33;
+$dark-app-stack-error-file-color: #D07B3F;
+$dark-app-stack-error-row-color: deepskyblue;
+$dark-app-stack-error-column-color: deepskyblue;
+$dark-app-stack-error-name-color: #E06353;
+$dark-app-stack-error-description-color: #FBED72;
+
+
+$dark-app-cljs-doc-desc-color: #FFF176;
+$dark-app-cljs-doc-header-color: #0698B9;
+$dark-app-tag-color: whitesmoke;
+$dark-app-tag-bg-color: #009688;

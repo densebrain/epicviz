@@ -13,6 +13,7 @@ import {isMain} from "common/Process"
 import * as Electron from "electron"
 import UIState from "renderer/store/state/UIState"
 import {UIActionFactory} from "renderer/store/actions/UIActionFactory"
+import {isLoadableState} from "common/models/LoadableState"
 
 const
 	log = getLogger(__filename),
@@ -100,18 +101,22 @@ function setupRendererSyncLeaf<S extends State<string>>(
 	new factoryConstructor().setState(leafState)
 }
 
-function setupRendererPersistenceLeaf<S extends State<string>>(
+async function setupRendererPersistenceLeaf<S extends State<string>>(
   factoryConstructor:IActionFactoryBaseConstructor<S>,
   stateConstructor:IStateConstructor<string,S>
-):void {
-  //const leafState = stateConstructor.fromJS(Electron.ipcRenderer.sendSync("GetSyncStoreState",stateConstructor.Key)) as S
+):Promise<void> {
   const leafState = stateConstructor.fromJS(
   	JSON.parse(
   		localStorage.getItem(stateConstructor.Key) || "{}"
 		)
 	) as S
 
-  new factoryConstructor().setState(leafState)
+	if (isLoadableState(leafState)) {
+		await leafState.load()
+	}
+
+	const factory = new factoryConstructor()
+  factory.setState(leafState)
 
   // SAVING FLAG
   let saving = false
@@ -163,7 +168,7 @@ async function init():Promise<void> {
 		setupIPC()
 	} else {
 		setupRendererSyncLeaf(AppActionFactory, AppState)
-    setupRendererPersistenceLeaf(UIActionFactory, UIState)
+    await setupRendererPersistenceLeaf(UIActionFactory, UIState)
 	}
 }
 

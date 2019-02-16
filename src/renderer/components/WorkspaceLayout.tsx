@@ -3,7 +3,7 @@ import {useCallback, useMemo, useRef, useState} from "react"
 import * as ReactDOM from "react-dom"
 import getLogger from "common/log/Logger"
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faCircle as FASolidCircle,faBell as FASolidBell} from "@fortawesome/pro-solid-svg-icons"
+import {faCircle as FASolidCircle, faBell as FASolidBell} from "@fortawesome/pro-solid-svg-icons"
 import {faBell as FALightBell} from "@fortawesome/pro-light-svg-icons"
 
 import {
@@ -27,12 +27,6 @@ import {AppActionFactory} from "common/store/actions/AppActionFactory"
 import Header from "renderer/components/Header"
 
 import {getValue, guard} from "typeguard"
-import Img from 'react-image'
-import {IconButton, Typography} from "@material-ui/core"
-import CheckIcon from "@material-ui/icons/Check"
-
-
-
 import {useCommandManager} from "renderer/command-manager-ui"
 import {CommandContainerBuilder, CommandType, getCommandManager, ICommandContainerItems} from "common/command-manager"
 import {StyledComponent} from "renderer/components/elements/StyledComponent"
@@ -44,7 +38,11 @@ import classNames from "classnames"
 import NotificationList from "renderer/components/elements/NotificationList"
 import EventHub from "common/events/Event"
 import {StringMap} from "common/Types"
-import CodeMirrorEditor from "renderer/components/elements/CodeMirrorEditor"
+import CodeMirrorEditor from "renderer/components/editor/CodeMirrorEditor"
+import {projectDirSelector} from "renderer/store/selectors/UISelectors"
+import * as Path from "path"
+import {Workspace} from "common/models/Workspace"
+import Repl from "renderer/components/Repl"
 
 const AvatarDefaultURL = require("renderer/assets/images/avatar-default.png")
 
@@ -132,10 +130,14 @@ interface P extends IThemedProperties {
 
 interface SP {
   splitters: StringMap<number | string>
+  projectDir: string
+  workspace: Workspace | null
 }
 
 const selectors = {
-  splitters: (state: IRootRendererState) => state.UIState.splitters
+  splitters: (state: IRootRendererState) => state.UIState.splitters,
+  projectDir: projectDirSelector,
+  workspace: (state:IRootRendererState) => state.UIState.workspace
 }
 
 const appActions = new AppActionFactory()
@@ -143,7 +145,7 @@ const uiActions = new UIActionFactory()
 
 export default StyledComponent<P, SP>(baseStyles, selectors)(function (props: P & SP): React.ReactElement<P & SP> {
   const
-    {classes, splitters} = props,
+    {classes, splitters, workspace, projectDir} = props,
     rootRef = useRef<any>(null),
     containerRef = useRef<any>(null),
     id = CommonElementIds.App,
@@ -153,20 +155,7 @@ export default StyledComponent<P, SP>(baseStyles, selectors)(function (props: P 
     {props: commandManagerProps} = useCommandManager(
       id,
       useCallback((builder: CommandContainerBuilder): ICommandContainerItems => {
-        const commandManager = getCommandManager()
-
-        // function makeContainerFocusHandler(container: CommonElement.IssueList | CommonElement.IssueView): () => void {
-        //   return () => {
-        //     const containerId = CommonElement[container]
-        //     if (commandManager.isFocused(containerId)) {
-        //       log.info("Already focused", containerId)
-        //     } else {
-        //       log.info("Focusing", containerId)
-        //       commandManager.focusOnContainer(containerId)
-        //       //commandManager.setContainerFocused(containerId,true,null)
-        //     }
-        //   }
-        // }
+        //const commandManager = getCommandManager()
 
         return builder
           .command(
@@ -196,8 +185,8 @@ export default StyledComponent<P, SP>(baseStyles, selectors)(function (props: P 
           .command(
             "CommandOrControl+i",
             (cmd, event) => guard(() => {
-              if (areDialogsOpen()) return
-
+              if (areDialogsOpen())
+                return
             }),
             {
               name: "Open repo",
@@ -211,8 +200,6 @@ export default StyledComponent<P, SP>(baseStyles, selectors)(function (props: P 
             (cmd, event) => guard(() => {
               if (getRendererStoreState().UIState.dialogs.length)
                 return
-
-
             }),
             {
               name: "New Issue",
@@ -226,8 +213,6 @@ export default StyledComponent<P, SP>(baseStyles, selectors)(function (props: P 
             (cmd, event) => guard(() => {
               if (areDialogsOpen())
                 return
-
-              //$(`#${CommonElementIds.IssueSearch} input`).focus()
             }),
             {
               name: "Find",
@@ -248,7 +233,7 @@ export default StyledComponent<P, SP>(baseStyles, selectors)(function (props: P 
     )
 
 
-  const onSplitterChange = useCallback((splitterId:string) => (newSize: number): void => {
+  const onSplitterChange = useCallback((splitterId: string) => (newSize: number): void => {
     uiActions.setSplitter(splitterId, newSize)
   }, [])
 
@@ -259,21 +244,24 @@ export default StyledComponent<P, SP>(baseStyles, selectors)(function (props: P 
     tabIndex={-1}
     {...commandManagerProps}
   >
-    <Header />
+    <Header/>
     <div className={classes.container}>
+      { workspace &&
       <VerticalSplitPane
         defaultSize={"50%"}
         primary="first"
       >
-        <CodeMirrorEditor file="" value={value} onValueChange={setValue} />
-        <CodeMirrorEditor file="" value={value2} onValueChange={setValue2} />
+        <Repl/>
+
+        <div/>
+        {/*<CodeMirrorEditor file="" value={value2} onValueChange={setValue2} />*/}
         {/*<MonacoEditor path="/1" value={value} onValueChange={newValue => setValue(newValue)}/>*/}
         {/*<MonacoEditor path="/2" value={value2} onValueChange={newValue => setValue2(newValue)}/>*/}
         {/*minSize={notificationsOpen ? 300 : 0}
         maxSize={notificationsOpen ? "50%" : 0}*/}
 
         {/*<NotificationList />*/}
-      </VerticalSplitPane>
+      </VerticalSplitPane>}
     </div>
   </div>
 

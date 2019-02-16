@@ -1,91 +1,52 @@
 ///<reference path="../../typings/custom.d.ts"/>
+
+// TOP LINE STUFF
 import 'source-map-support/register'
 import 'common/util/ErrorHandler'
+import "common/util/RendererExt"
+import "./Env"
+
+// CSS
 import "./assets/fonts/fonts.global.scss"
 import "./assets/css/global.scss"
+import "./assets/css/output/repl.scss"
+
+// REACT SETUP
 import "./ReactHotConfig"
 import "react-hot-loader/patch"
 import * as ReactDOM from "react-dom"
-import "moment-timezone"
-import "common/util/RendererExt"
-
-import {EventEmitter} from "events"
-import "./Env"
 import * as React from "react"
+import {Provider} from "react-redux"
 
+// IMPORT MOMENT TIMEZONES & OTHER FRONT END STUFF
+import "moment-timezone"
+import * as $ from 'jquery'
+
+// STORE
 import {loadAndInitStore} from "common/store/AppStore"
 import "renderer/store/UIAppStoreTypes"
 
-import * as _ from 'lodash'
-import * as $ from 'jquery'
 
-// const nodeRequire = process.mainModule.require
-//
-// nodeRequire("@babel/register")({
-//   only: [/monaco-editor/],
-//   cache: true
-// })
-//
-// nodeRequire("@babel/preset-env")
-//
-// nodeRequire("@babel/preset-react")
-//
-// nodeRequire("@babel/plugin-proposal-decorators")//( {legacy: true})
-// nodeRequire("@babel/plugin-proposal-class-properties")//({loose: true})
-// nodeRequire("@babel/plugin-syntax-dynamic-import")
-
-
-window.onerror = function(message, source, lineno, colno, error) {
-  console.error(message, source, lineno, colno, error)
-}
-
-
-
+// SUGAR EXTEND GLOBAL
 require("sugar").extend()
 
-EventEmitter.defaultMaxListeners = Number.MAX_VALUE
-
-
-
-
-const
-  appEl = $("#app")
-
-
-$("body, #app").css({
-  width: "100vw",
-  maxWidth: "100vw",
-  height: "100vh",
-  maxHeight: "100vh",
-  overflow: "hidden",
-  border: 0,
-  margin: 0,
-  padding: 0
-})
-
-$('body').append($(`<div class="diagnostics"></div>
-
-    <div class="logging"></div>
-
-    <div class="completion"></div>
-
-    <div class="error"></div>
-`))
+document.body.classList.add("dark-theme","cm-s-dark-theme")
 
 let rendered = false
 
 async function renderRoot():Promise<void> {
-  const doRender = ():void => {
+  const doRender = async ():Promise<void> => {
     if (rendered)
       return
 
     rendered = true
-    const
-      Root = require("./Root").default
+    const Root = (await import("./Root")).default
 
     ReactDOM.render(
-      <Root/>,
-      appEl[0]
+      <Provider store={getReduxStore()}>
+        <Root/>
+      </Provider>,
+      document.getElementById("app")
     )
   }
 
@@ -94,6 +55,7 @@ async function renderRoot():Promise<void> {
   await require('common/watchers/StorePersistWatcher').default
   await require("./init").default
   await require('common/watchers/ConfigWatcher').default
+  require('renderer/watchers/WorkspaceWatcher')
 
 
   doRender()

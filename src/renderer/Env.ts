@@ -1,7 +1,9 @@
 /* eslint-disable typescript/no-namespace */
 
 import {getValue} from "typeguard"
+import {EventEmitter} from "events"
 
+EventEmitter.defaultMaxListeners = Number.MAX_VALUE
 
 Object.assign(global,{
 	isDev: process.env.NODE_ENV !== 'production',

@@ -2,6 +2,8 @@ import getLogger from "common/log/Logger"
 import {State} from "typedux"
 import {IDialog} from "renderer/models/Dialog"
 import {ISearchChip, ISearchChipData} from "renderer/search/Search"
+import {ILoadableState} from "common/models/LoadableState"
+import {Workspace} from "common/models/Workspace"
 
 const log = getLogger(__filename)
 
@@ -9,7 +11,7 @@ const log = getLogger(__filename)
  *  UIState
  */
 
-export class UIState implements State<string> {
+export class UIState implements ILoadableState {
 
   static Key = 'UIState'
 
@@ -21,8 +23,9 @@ export class UIState implements State<string> {
 
 
   dialogs:Array<IDialog> = []
-
+  workspace: Workspace | null = null
   notificationsOpen:boolean = false
+  projectDir: string = ""
 
   splitters = {
     notifications: 300 as string|number
@@ -37,6 +40,16 @@ export class UIState implements State<string> {
     Object.assign(this, o)
   }
 
+  async load(): Promise<void> {
+    if (!this.projectDir.isEmpty()) {
+      try {
+        this.workspace = await Workspace.load(this.projectDir)
+      } catch (err) {
+        log.error("Unable to load workspace", err)
+      }
+    }
+  }
+
   /**
    * To plain JS object
    *
@@ -45,7 +58,8 @@ export class UIState implements State<string> {
   toJS() {
     return {
       ...this,
-      dialogs: []
+      dialogs: [],
+      workspace: null
     }
   }
 

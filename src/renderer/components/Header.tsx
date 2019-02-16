@@ -1,6 +1,7 @@
 import * as React from "react"
 import getLogger from "common/log/Logger"
 import {
+  Ellipsis,
   FillHeight,
   FillWidth,
   FlexAuto,
@@ -9,7 +10,7 @@ import {
   IThemedProperties,
   makeDimensionConstraints,
   makeHeightConstraint,
-  makeTransition,
+  makeTransition, makeWidthConstraint,
   mergeClasses,
   OverflowHidden,
   PositionAbsolute,
@@ -20,6 +21,8 @@ import {
 import {WindowControls} from "renderer/components/elements/WindowControls"
 import {remote} from "electron"
 import {StyledComponent} from "renderer/components/elements/StyledComponent"
+import {projectDirSelector} from "renderer/store/selectors/UISelectors"
+
 
 const log = getLogger(__filename)
 
@@ -40,11 +43,14 @@ function baseStyles(theme:Theme):StyleDeclaration<Classes> {
 			...OverflowHidden,
 			background: Header.colors.bg,
 			boxShadow: Header.colors.boxShadow,
-			"& > .left, & > .right": {...FlexRowCenter, ...FillHeight,
-
+			"& > .left, & > .right": {
+				...FlexRowCenter,
+				...FillHeight,
+				...makeWidthConstraint(200)
 			},
 			"& > .left": {
 				justifyContent: "flex-start"
+
 			},
 			"& > .right": {
 				...FlexAuto,
@@ -55,14 +61,23 @@ function baseStyles(theme:Theme):StyleDeclaration<Classes> {
 				boxShadow: "inset 0 0 0.6rem rgba(100,100,100,0.8)"
 			},
 
-			"& > .logo": {
+			"& > .title": {
+				...FlexScale,
+				...FlexRowCenter,
+				...FillHeight,
+				...Ellipsis,
+        color: primary.main,
+        fontSize: rem(1.1),
+			},
+
+			"& .logo": {
 				...FlexAuto,
 				...PositionRelative,
 				color: primary.main,
-				fontFamily: "Jura",
+        fontFamily: "Jura",
 				fontWeight: 400,
-				fontSize: rem(1.3),
-				paddingLeft: rem(1),
+				fontSize: rem(1.1),
+				paddingLeft: rem(0.5),
 				marginTop: rem(-0.2),
 				lineHeight: 1,
 				"-webkit-user-select": "none",
@@ -84,6 +99,14 @@ interface P extends IThemedProperties<Classes> {
   leftControls?: React.ReactNode
 }
 
+interface SP {
+	projectDir:string
+}
+
+const selectors = {
+	projectDir: projectDirSelector
+}
+
 function onDoubleClick():void {
 	const win = remote.getCurrentWindow()
 	if (win.isMaximized())
@@ -92,9 +115,9 @@ function onDoubleClick():void {
 		win.maximize()
 }
 
-export default StyledComponent<P>(baseStyles)(function Header(props:P):React.ReactElement<P> {
+export default StyledComponent<P,SP>(baseStyles,selectors)(function Header(props:SP & P):React.ReactElement<P> {
   const
-    {classes,className,leftControls,rightControls} = props
+    {classes,className,leftControls,rightControls, projectDir} = props
 
 
   return <div
@@ -104,14 +127,15 @@ export default StyledComponent<P>(baseStyles)(function Header(props:P):React.Rea
 
     <div className="left">
       <WindowControls />
-      {leftControls}
+      <div className="logo">
+        epicviz
+      </div>
+			{leftControls}
     </div>
 
-    <div className="logo">
-			epicviz
+    <div className="title">
+			{projectDir ? projectDir : "Choose a Workspace"}
     </div>
-
-    <div className="spacer"/>
 
     <div className="right">
       {rightControls}

@@ -1,0 +1,180 @@
+@import 'themes';
+@import 'repl-common';
+
+@mixin replEditor($theme) {
+  .CodeMirror {
+    height: auto;
+    font-family: inherit;
+    background-color: if($theme == $dark-theme, $dark-app-background-color, $lt-app-background-color);
+    color: if($theme == $dark-theme, $dark-app-color, $lt-app-color);
+  }
+
+  .CodeMirror-gutters {
+    background-color: if($theme == $dark-theme, $dark-app-background-color, $lt-app-background-color);
+  }
+
+  .CodeMirror-foldmarker {
+    color: inherit;
+    font-family: arial;
+    line-height: 0.3;
+    cursor: pointer;
+  }
+
+  .CodeMirror-foldgutter {
+    width: 0.7em;
+  }
+
+  .CodeMirror-foldgutter-open,
+  .CodeMirror-foldgutter-folded {
+    cursor: pointer;
+  }
+
+  .CodeMirror-foldgutter-open:after {
+    font-family: "FontAwesome";
+    content: "\f147";
+    font-size: 0.75em;
+  }
+
+  .CodeMirror-foldgutter-folded:after {
+    font-family: "FontAwesome";
+    content: "\f196";
+    font-size: 0.75em;
+  }
+
+  .CodeMirror-foldmarker {
+    font-family: arial;
+  }
+
+  .CodeMirror-foldgutter {
+    width: 0.7em;
+  }
+
+  .CodeMirror-gutter-wrapper {
+    font-size: 0.9em;
+    -webkit-filter: brightness(85%);
+    filter: brightness(85%);
+  }
+
+  .CodeMirror-dialog  {
+    z-index: 4;
+    position: relative;
+  }
+
+  .CodeMirror-linenumber:hover {
+    font-weight: bolder;
+  }
+
+  &.cm-s-light-theme {
+    .cm-meta { color: #FF1717; }
+    .cm-keyword { font-weight: bold; color: #BDBB0C; }
+    .cm-atom { color: #7FC118; }
+    .cm-number { color: #0EAADC; }
+    .cm-def { color: #009688; }
+    .cm-variable { color: #4BBADC; }
+    .cm-variable-2 { color: #607D8B; }
+    .cm-variable-3 { color: #3D9AB7; }
+    .cm-property { color: #DE8787; }
+    .cm-operator { color: #9E9E9E; }
+    .cm-comment { color: silver; }
+    .cm-string { color: #FE6F56; }
+    .cm-string-2 { color: #f50; }
+    .cm-qualifier { color: #555; }
+    .cm-builtin { color: #30A7A7; }
+    .cm-bracket { color: #E0075E; }
+    .cm-tag { color: #170; }
+    .cm-attribute { color: #00c; }
+    .cm-link { color: #607D8B; }
+    .cm-error { color: #DC0303; }
+
+    .CodeMirror-foldmarker {
+      text-shadow: #A2A1A1 1px 1px 2px, #A2A1A1 -1px -1px 2px, #A2A1A1 1px -1px 2px, #A2A1A1 -1px 1px 2px;
+    }
+
+    .CodeMirror-gutters {
+      border-right-color: #ddd;
+    }
+
+    .CodeMirror-selected {
+      background: rgba(214, 216, 210, 0.76);
+    }
+
+    .CodeMirror-selectedtext {
+      background: #D6D8D2;
+    }
+
+    &.cm-fat-cursor {
+      .CodeMirror-cursor {
+        background: #EA6994;
+      }
+    }
+
+    .CodeMirror-cursor {
+      background: inherit;
+    }
+
+    .cm-matchhighlight {
+      outline: 1px solid #A5A3A3;
+    }
+
+    .CodeMirror-activeline-background { background: rgba(245, 222, 179, 0.42); }
+    .CodeMirror-matchingbracket { font-weight: bolder; color:#D30DF3 !important; }
+
+  }
+
+
+  &.cm-s-dark-theme {
+    .cm-meta { color: #FF1717; }
+    .cm-keyword { font-weight: bold; color: #BDBB0C; }
+    .cm-atom { color: #7FC118; }
+    .cm-number { color: #0EAADC; }
+    .cm-def { color: #009688; }
+    .cm-variable { color: #0698B9; }
+    .cm-variable-2 { color: #a95c97; }
+    .cm-variable-3 { color: #848086; }
+    .cm-property { color: #DE8787; }
+    .cm-operator { color: #9E9E9E; }
+    .cm-comment { color: rgba(192, 192, 192, 0.78); }
+    .cm-string { color: #FE6F56; }
+    .cm-string-2 { color: #f50; }
+    .cm-qualifier { color: #555; }
+    .cm-builtin { color: #30A7A7; }
+    .cm-bracket { color: #E0075E; }
+    .cm-tag { color: #170; }
+    .cm-attribute { color: #00c; }
+    .cm-link { color: #607D8B; }
+    .cm-error { color: #DC0303; }
+
+    .CodeMirror-foldmarker {
+      text-shadow: #A2A1A1 1px 1px 2px, #A2A1A1 -1px -1px 2px, #A2A1A1 1px -1px 2px, #A2A1A1 -1px 1px 2px;
+    }
+
+    .CodeMirror-gutters {
+      border-right-color: rgba(158, 158, 158, 0.13);
+    }
+
+    .CodeMirror-cursor {
+      border-left-color: inherit;
+    }
+
+    &.cm-fat-cursor {
+      .CodeMirror-cursor {
+        background: #E91E63;
+      }
+    }
+
+    .CodeMirror-selected {
+      background: rgb(33, 33, 33);
+    }
+
+    .CodeMirror-selectedtext {
+      background: rgb(84, 84, 83);
+    }
+
+    .cm-matchhighlight {
+      outline: 1px solid #868484;
+    }
+
+    .CodeMirror-activeline-background { background: rgba(158, 158, 158, 0.13); }
+    .CodeMirror-matchingbracket { font-weight: bolder; color:#E0075E !important; }
+  }
+}

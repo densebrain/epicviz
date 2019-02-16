@@ -1,0 +1,149 @@
+@import 'themes';
+@import 'repl-common';
+
+@keyframes spin {
+  0% {
+    -webkit-transform: rotate(-30deg);
+    transform: rotate(-30deg);
+  }
+
+  100% {
+    -webkit-transform: rotate(30deg);
+    transform: rotate(30deg);
+  }
+}
+
+@mixin statusBar($theme) {
+  .repl-status-bar {
+    @include notSelectable();
+    z-index: 101;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    padding: 3px 10px;
+    background-color: if($theme == $dark-theme, $dark-app-status-bar-background-color, $lt-app-status-bar-background-color );
+    width: 100%;
+    display: flex;
+    align-items: center;
+
+    .repl-status-bar-preference {
+      padding-right: 10px;
+      font-size: 1.3em;
+      i.fa-cog {
+        cursor: pointer;
+        &:hover {
+          animation: fa-spin 2s 1 linear;
+        }
+      }
+    }
+
+    .run-help {
+      padding: 0px 25px;
+      cursor: default;
+      color: if($theme == $dark-theme, $dark-app-status-bar-run-help-color, $lt-app-status-bar-run-help-color);
+      .run-command {
+        color: if($theme == $dark-theme, $dark-app-status-bar-run-color, $lt-app-status-bar-run-color);
+        font-size: 0.9em;
+        font-weight: 900;
+        font-style: normal;
+      }
+      .run {
+        font-weight: 900;
+      }
+    }
+
+    .placeholder {
+      flex: 1;
+    }
+
+    .repl-status-bar-commands {
+      color: if($theme == $dark-theme, $dark-app-status-bar-command-color, $lt-app-status-bar-command-color);
+      padding: 0 5px;
+    }
+
+    .repl-status-bar-errors {
+      color: if($theme == $dark-theme, $dark-app-status-bar-error-color, $lt-app-status-bar-error-color);
+      padding: 0 5px;
+    }
+
+    .repl-status-bar-handles {
+      color: if($theme == $dark-theme, $dark-app-status-bar-handle-color, $lt-app-status-bar-handle-color);
+      padding: 0 5px;
+    }
+
+    .repl-status-bar-count,
+    .repl-status-bar-message {
+      pointer-events: none;
+      color: if($theme == $dark-theme, $dark-app-status-bar-message-color, $lt-app-status-bar-message-color);
+      padding: 0 5px;
+    }
+    .repl-status-bar-img {
+      display: flex;
+      align-self: center;
+    }
+
+    .console-notification {
+      font-size: 0.8em;
+      color: if($theme == $dark-theme, $dark-app-status-bar-console-notification-color, $lt-app-status-bar-console-notification-color);
+      -webkit-animation:spin 0.5s linear infinite;
+      animation:spin 0.5s linear infinite;
+      -webkit-animation-direction: alternate;
+      animation-direction: alternate;
+    }
+
+    .repl-status-cursor-position {
+      color: if($theme == $dark-theme, $dark-app-status-bar-cursor-pos-color, $lt-app-status-bar-cursor-pos-color);
+      cursor: default;
+    }
+
+    .console-release-notification {
+      cursor: pointer;
+      color: if($theme == $dark-theme, $dark-app-status-bar-console-release-notification-color, $lt-app-status-bar-console-release-notification-color);
+      padding: 0 5px;
+    }
+
+    .repl-status-bar-console {
+      color: if($theme == $dark-theme, $dark-app-status-bar-console-color, $lt-app-status-bar-console-color);
+      padding-right: 15px;
+      cursor: pointer;
+
+      .fa-stack {
+        .text-danger {
+          color: if($theme == $dark-theme, $dark-app-entry-status-error-color, $lt-app-entry-status-error-color);
+        }
+
+        .fa-terminal {
+          font-weight: 900;
+        }
+      }
+    }
+
+    .repl-status-bar-mode {
+      color: if($theme == $dark-theme, $dark-app-status-bar-mode-color, $lt-app-status-bar-mode-color);
+      padding: 0 5px;
+
+      .fa {
+        padding: 0 3px;
+      }
+    }
+
+    .repl-status-bar-lang {
+      color: if($theme == $dark-theme, $dark-app-status-bar-lang-color, $lt-app-status-bar-lang-color);
+      padding: 0 5px;
+
+      .fa, .icon-javascript {
+        padding: 0 3px;
+        font-size: 1.1em;
+      }
+      .icon-javascript {
+        position: relative;
+        top: 1px;
+      }
+    }
+
+  }
+
+  .repl-status-bar {
+    height: calc(#{$app-font-size} + 6px);
+  }
+}

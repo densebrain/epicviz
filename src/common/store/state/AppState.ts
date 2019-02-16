@@ -3,45 +3,36 @@ import {IConfig} from "common/config/Config"
 import {getConfig} from "common/config/ConfigHelper"
 
 import {IAcceleratorMap} from "common/models/CommandTypes"
-import {IDataSyncStatus} from "common/Types"
 import {IAppStatus, makeDefaultAppStatus} from "common/models/AppStatus"
-
-
+import {Workspace} from "common/models/Workspace"
 
 
 export class AppState implements State<string> {
-	static Key = "AppState"
+  static Key = "AppState"
 
-	static fromJS(o:any = {}):AppState {
-		return new AppState(o)
-	}
+  static fromJS(o: any = {}): AppState {
+    return new AppState(o)
+  }
 
-	type = AppState.Key
-	config: IConfig
+  type = AppState.Key
+  config: IConfig
 
-	customAccelerators:IAcceleratorMap
-
-	enabledRepoIds = Array<number>()
-
-	syncs:{[table:string]:IDataSyncStatus} = {}
+  customAccelerators: IAcceleratorMap
 
   status: IAppStatus = makeDefaultAppStatus()
 
-	constructor(o:any = {}) {
-		Object.assign(this,o,{
-			config: getConfig()
-		})
-	}
+  constructor(o: any = {}) {
+    Object.assign(this, o, {
+      config: getConfig()
+    })
+  }
 
-	toJS():Object {
-		return {...this, config: null, editing: {
-        open: false,
-				issue: null,
-				status: {
-          blockingWork: []
-				}
-      }}
-	}
+  toJS(): Object {
+    return {
+      ...this,
+      config: null
+    }
+  }
 
 
 }

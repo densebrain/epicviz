@@ -1,0 +1,32 @@
+@import 'themes';
+@import 'repl-common';
+
+@mixin replPrompt($theme) {
+  .repl-prompt {
+    margin: 0;
+    padding: 5px;
+    background-color: if($theme == $dark-theme, $dark-app-prompt-background-color, $lt-app-prompt-background-color);
+    display: flex;
+    align-items: flex-start;
+    min-height: 25px;
+
+    .repl-active-icon {
+      @include notSelectable();
+      color: if($theme == $dark-theme, $dark-app-prompt-active-icon-color, $lt-app-prompt-active-icon-color);
+      @include arrowIcon();
+    }
+
+    .repl-active-input {
+      @include entryLayout();
+      @include editor();
+    }
+    .repl-active-input.repl-active-input-running:before {
+      content: "\f021";
+      float: right;
+      margin-right: 8px;
+      font: normal normal normal 14px/1 FontAwesome;
+      color: if($theme == $dark-theme, $dark-app-prompt-spin-color, $lt-app-prompt-spin-color);
+      animation: fa-spin 2s infinite linear;
+    }
+  }
+}

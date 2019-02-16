@@ -1,14 +1,16 @@
-const Worker = require("./worker.js")
+import getLogger from "common/log/Logger"
+
+const Worker = require("!!worker-loader!ts-loader?transpileOnly=true!./worker.ts")
 //!!worker-loader?inline=true!
 
 /* eslint-disable */
 // CodeMirror, copyright (c) by Marijn Haverbeke and others
-// Distributed under an MIT license: https://codemirror.net/LICENSE
+// Distributed under an MIT license: https://CM.net/LICENSE
 
 // Glue code between CodeMirror and Tern.
 //
-// Create a CodeMirror.TernServer to wrap an actual Tern server,
-// register open documents (CodeMirror.Doc instances) with it, and
+// Create a CM.TernServer to wrap an actual Tern server,
+// register open documents (CM.Doc instances) with it, and
 // call its methods to activate the assisting functions that Tern
 // provides.
 //
@@ -48,12 +50,13 @@ const Worker = require("./worker.js")
 //   them in the workerScript, simply leave this undefined.
 //"use strict";
 
-const CodeMirror = require("codemirror/lib/codemirror")
+const log = getLogger(__filename)
+const CM = require("codemirror/lib/codemirror")
 
 
 // declare global: tern
 
-CodeMirror.TernServer = function (options) {
+CM.TernServer = function (options) {
   const self = this
   this.options = options || {};
   const plugins = this.options.plugins || (this.options.plugins = {})
@@ -75,85 +78,89 @@ CodeMirror.TernServer = function (options) {
   this.trackChange = function (doc, change) {
     trackChange(self, doc, change);
   };
-  
+
   this.cachedArgHints = null;
   this.activeArgHints = null;
   this.jumpStack = [];
-  
+
   this.getHint = function (cm, c) {
     return hint(self, cm, c);
   };
   this.getHint.async = true;
 };
 
-CodeMirror.TernServer.prototype = {
+CM.TernServer.prototype = {
+  addRaw: function (name, data) {
+    this.server.addFile(name, data);
+    return this.docs[name] = data;
+  },
   addDoc: function (name, doc) {
     const data = {doc: doc, name: name, changed: null}
     this.server.addFile(name, docValue(this, data));
-    CodeMirror.on(doc, "change", this.trackChange);
+    CM.on(doc, "change", this.trackChange);
     return this.docs[name] = data;
   },
-  
+
   delDoc: function (id) {
     const found = resolveDoc(this, id)
     if (!found) return;
-    CodeMirror.off(found.doc, "change", this.trackChange);
+    CM.off(found.doc, "change", this.trackChange);
     delete this.docs[found.name];
     this.server.delFile(found.name);
   },
-  
+
   hideDoc: function (id) {
     closeArgHints(this);
     const found = resolveDoc(this, id)
     if (found && found.changed) sendDoc(this, found);
   },
-  
+
   complete: function (cm) {
     cm.showHint({hint: this.getHint});
   },
-  
+
   showType: function (cm, pos, c) {
     showContextInfo(this, cm, pos, "type", c);
   },
-  
+
   showDocs: function (cm, pos, c) {
     showContextInfo(this, cm, pos, "documentation", c);
   },
-  
+
   updateArgHints: function (cm) {
     updateArgHints(this, cm);
   },
-  
+
   jumpToDef: function (cm) {
     jumpToDef(this, cm);
   },
-  
+
   jumpBack: function (cm) {
     jumpBack(this, cm);
   },
-  
+
   rename: function (cm) {
     rename(this, cm);
   },
-  
+
   selectName: function (cm) {
     selectName(this, cm);
   },
-  
+
   request: function (cm, query, c, pos) {
     const self = this
     const doc = findDoc(this, cm.getDoc())
     const request = buildRequest(this, doc, query, pos)
     const extraOptions = request.query && this.options.queryOptions && this.options.queryOptions[request.query.type]
     if (extraOptions) for (let prop in extraOptions) request.query[prop] = extraOptions[prop];
-    
+
     this.server.request(request, function (error, data) {
       if (!error && self.options.responseFilter)
         data = self.options.responseFilter(doc, query, request, error, data);
       c(error, data);
     });
   },
-  
+
   destroy: function () {
     closeArgHints(this)
     if (this.worker) {
@@ -163,12 +170,15 @@ CodeMirror.TernServer.prototype = {
   }
 };
 
-const Pos = CodeMirror.Pos
+const Pos = CM.Pos
 const cls = "CodeMirror-Tern-"
 const bigDoc = 250
 
 function getFile(ts, name, c) {
-  const buf = ts.docs[name]
+  const
+    buf = ts.docs[name]
+
+
   if (buf)
     c(docValue(ts, buf));
   else if (ts.options.getFile)
@@ -177,8 +187,9 @@ function getFile(ts, name, c) {
     c(null);
 }
 
-function findDoc(ts, doc, name) {
-  for (var n in ts.docs) {
+function findDoc(ts, doc, name = null) {
+  let n
+  for (n in ts.docs) {
     const cur = ts.docs[n]
     if (cur.doc == doc) return cur;
   }
@@ -194,17 +205,17 @@ function findDoc(ts, doc, name) {
 
 function resolveDoc(ts, id) {
   if (typeof id == "string") return ts.docs[id];
-  if (id instanceof CodeMirror) id = id.getDoc();
-  if (id instanceof CodeMirror.Doc) return findDoc(ts, id);
+  if (id instanceof CM) id = id.getDoc();
+  if (id instanceof CM.Doc) return findDoc(ts, id);
 }
 
 function trackChange(ts, doc, change) {
   const data = findDoc(ts, doc)
-  
+
   const argHints = ts.cachedArgHints
   if (argHints && argHints.doc == doc && cmpPos(argHints.start, change.to) >= 0)
     ts.cachedArgHints = null;
-  
+
   let changed = data.changed
   if (changed == null)
     data.changed = changed = {from: change.from.line, to: change.from.line};
@@ -212,7 +223,7 @@ function trackChange(ts, doc, change) {
   if (change.from.line < changed.to) changed.to = changed.to - (change.to.line - end);
   if (end >= changed.to) changed.to = end + 1;
   if (changed.from > change.from.line) changed.from = change.from.line;
-  
+
   if (doc.lineCount() > bigDoc && change.to - changed.from > 100) setTimeout(function () {
     if (data.changed && data.changed.to - data.changed.from > 100) sendDoc(ts, data);
   }, 200);
@@ -236,7 +247,7 @@ function hint(ts, cm, c) {
     if (cm.getRange(Pos(from.line, from.ch - 2), from) == "[\"" &&
       cm.getRange(to, Pos(to.line, to.ch + 2)) != "\"]")
       after = "\"]";
-    
+
     for (let i = 0; i < data.completions.length; ++i) {
       const completion = data.completions[i]
       let className = typeToIcon(completion.type)
@@ -248,16 +259,16 @@ function hint(ts, cm, c) {
         data: completion
       });
     }
-    
+
     const obj = {from: from, to: to, list: completions}
     let tooltip = null
-    CodeMirror.on(obj, "close", function () {
+    CM.on(obj, "close", function () {
       remove(tooltip);
     });
-    CodeMirror.on(obj, "update", function () {
+    CM.on(obj, "update", function () {
       remove(tooltip);
     });
-    CodeMirror.on(obj, "select", function (cur, node) {
+    CM.on(obj, "select", function (cur, node) {
       remove(tooltip);
       const content = ts.options.completionTip ? ts.options.completionTip(cur.data) : cur.data.doc
       if (content) {
@@ -307,14 +318,14 @@ function showContextInfo(ts, cm, pos, queryName, c) {
 
 function updateArgHints(ts, cm) {
   closeArgHints(ts);
-  
+
   if (cm.somethingSelected()) return;
   const state = cm.getTokenAt(cm.getCursor()).state
-  const inner = CodeMirror.innerMode(cm.getMode(), state)
+  const inner = CM.innerMode(cm.getMode(), state)
   if (inner.mode.name != "javascript") return;
   const lex = inner.state.lexical
   if (lex.info != "call") return;
-  
+
   let ch
   const argPos = lex.pos || 0, tabSize = cm.getOption("tabSize")
   for (var line = cm.getCursor().line, e = Math.max(0, line - 9), found = false; line >= e; --line) {
@@ -333,12 +344,12 @@ function updateArgHints(ts, cm) {
     }
   }
   if (!found) return;
-  
+
   const start = Pos(line, ch)
   const cache = ts.cachedArgHints
   if (cache && cache.doc == cm.getDoc() && cmpPos(start, cache.start) == 0)
     return showArgHints(ts, cm, argPos);
-  
+
   ts.request(cm, {type: "type", preferFunction: true, end: start}, function (error, data) {
     if (error || !data.type || !(/^fn\(/).test(data.type)) return;
     ts.cachedArgHints = {
@@ -354,7 +365,7 @@ function updateArgHints(ts, cm) {
 
 function showArgHints(ts, cm, pos) {
   closeArgHints(ts);
-  
+
   const cache = ts.cachedArgHints, tp = cache.type
   const tip = elt("span", cache.guess ? cls + "fhint-guess" : null,
     elt("span", cls + "fname", cache.name), "(")
@@ -381,7 +392,7 @@ function showArgHints(ts, cm, pos) {
 function parseFnType(text) {
   const args = []
   let pos = 3
-  
+
   function skipMatching(upto) {
     let depth = 0
     const start = pos
@@ -393,7 +404,7 @@ function parseFnType(text) {
       ++pos;
     }
   }
-  
+
   // Parse arguments
   if (text.charAt(pos) != ")") for (; ;) {
     let name = text.slice(pos).match(/^([^, \(\[\{]+): /)
@@ -405,16 +416,16 @@ function parseFnType(text) {
     if (text.charAt(pos) == ")") break;
     pos += 2;
   }
-  
+
   const rettype = text.slice(pos).match(/^\) -> (.*)$/)
-  
+
   return {args: args, rettype: rettype && rettype[1]};
 }
 
 // Moving to the definition of something
 
 function jumpToDef(ts, cm) {
-  function inner(varName) {
+  function inner(varName = null) {
     const req = {type: "definition", variable: varName || null}
     const doc = findDoc(ts, cm.getDoc())
     ts.server.request(buildRequest(ts, doc, req), function (error, data) {
@@ -423,7 +434,7 @@ function jumpToDef(ts, cm) {
         window.open(data.url);
         return;
       }
-      
+
       if (data.file) {
         const localDoc = ts.docs[data.file]
         let found
@@ -440,7 +451,7 @@ function jumpToDef(ts, cm) {
       showError(ts, cm, "Could not find a definition.");
     });
   }
-  
+
   if (!atInterestingExpression(cm))
     dialog(cm, "Jump to variable", function (name) {
       if (name) inner(name);
@@ -468,12 +479,12 @@ function findContext(doc, data) {
   const before = data.context.slice(0, data.contextOffset).split("\n")
   const startLine = data.start.line - (before.length - 1)
   const start = Pos(startLine, (before.length == 1 ? data.start.ch : doc.getLine(startLine).length) - before[0].length)
-  
+
   let text = doc.getLine(startLine).slice(start.ch)
   for (let cur = startLine + 1; cur < doc.lineCount() && text.length < data.context.length; ++cur)
     text += "\n" + doc.getLine(cur);
   if (text.slice(0, data.context.length) == data.context) return data;
-  
+
   const cursor = doc.getSearchCursor(data.context, 0, false)
   let nearest, nearestDist = Infinity
   while (cursor.findNext()) {
@@ -486,7 +497,7 @@ function findContext(doc, data) {
     }
   }
   if (!nearest) return null;
-  
+
   if (before.length == 1)
     nearest.ch += before[0].length;
   else
@@ -540,8 +551,8 @@ let nextChangeOrig = 0
 
 function applyChanges(ts, changes) {
   const perFile = Object.create(null)
-  for (var i = 0; i < changes.length; ++i) {
-    var ch = changes[i];
+  for (let i = 0; i < changes.length; ++i) {
+    const ch = changes[i];
     (perFile[ch.file] || (perFile[ch.file] = [])).push(ch);
   }
   for (let file in perFile) {
@@ -551,8 +562,8 @@ function applyChanges(ts, changes) {
       return cmpPos(b.start, a.start);
     });
     const origin = "*rename" + (++nextChangeOrig)
-    for (var i = 0; i < chs.length; ++i) {
-      var ch = chs[i];
+    for (let i = 0; i < chs.length; ++i) {
+      const ch = chs[i];
       known.doc.replaceRange(ch.text, ch.start, ch.end, origin);
     }
   }
@@ -560,8 +571,8 @@ function applyChanges(ts, changes) {
 
 // Generic request-building helper
 
-function buildRequest(ts, doc, query, pos) {
-  var files = [], offsetLines = 0, allowFragments = !query.fullDocs;
+function buildRequest(ts, doc, query, pos = null) {
+  let files = [], offsetLines = 0, allowFragments = !query.fullDocs;
   if (!allowFragments) delete query.fullDocs;
   if (typeof query == "string") query = {type: query};
   query.lineCharPositions = true;
@@ -571,14 +582,14 @@ function buildRequest(ts, doc, query, pos) {
       query.start = doc.doc.getCursor("start");
   }
   const startPos = query.start || query.end
-  
+
   if (doc.changed) {
     if (doc.doc.lineCount() > bigDoc && allowFragments !== false &&
       doc.changed.to - doc.changed.from < 100 &&
       doc.changed.from <= startPos.line && doc.changed.to > query.end.line) {
       files.push(getFragmentAround(doc, startPos, query.end));
       query.file = "#0";
-      var offsetLines = files[0].offsetLines;
+      const offsetLines = files[0].offsetLines;
       if (query.start != null) query.start = Pos(query.start.line - -offsetLines, query.start.ch);
       query.end = Pos(query.end.line - offsetLines, query.end.ch);
     } else {
@@ -600,7 +611,7 @@ function buildRequest(ts, doc, query, pos) {
       cur.changed = null;
     }
   }
-  
+
   return {query: query, files: files};
 }
 
@@ -608,24 +619,25 @@ function getFragmentAround(data, start, end) {
   const doc = data.doc
   let minIndent = null, minLine = null, endLine
   const tabSize = 4
-  for (var p = start.line - 1, min = Math.max(0, p - 50); p >= min; --p) {
+  let p = start.line - 1, min = Math.max(0, p - 50)
+  for (; p >= min; --p) {
     const line = doc.getLine(p), fn = line.search(/\bfunction\b/)
     if (fn < 0) continue;
-    var indent = CodeMirror.countColumn(line, null, tabSize);
+    const indent = CM.countColumn(line, null, tabSize);
     if (minIndent != null && minIndent <= indent) continue;
     minIndent = indent;
     minLine = p;
   }
   if (minLine == null) minLine = min;
   const max = Math.min(doc.lastLine(), end.line + 20)
-  if (minIndent == null || minIndent == CodeMirror.countColumn(doc.getLine(start.line), null, tabSize))
+  if (minIndent == null || minIndent == CM.countColumn(doc.getLine(start.line), null, tabSize))
     endLine = max;
   else for (endLine = end.line + 1; endLine < max; ++endLine) {
-    var indent = CodeMirror.countColumn(doc.getLine(endLine), null, tabSize);
+    const indent = CM.countColumn(doc.getLine(endLine), null, tabSize);
     if (indent <= minIndent) break;
   }
   const from = Pos(minLine, 0)
-  
+
   return {
     type: "part",
     name: data.name,
@@ -636,13 +648,13 @@ function getFragmentAround(data, start, end) {
 
 // Generic utilities
 
-var cmpPos = CodeMirror.cmpPos;
+let cmpPos = CM.cmpPos;
 
-function elt(tagname, cls /*, ... elts*/) {
+function elt(tagname, cls, ...args /*, ... elts*/) {
   const e = document.createElement(tagname)
   if (cls) e.className = cls;
-  for (let i = 2; i < arguments.length; ++i) {
-    let elt = arguments[i]
+  for (let i = 0; i < args.length; ++i) {
+    let elt = args[i]
     if (typeof elt == "string") elt = document.createTextNode(elt);
     e.appendChild(elt);
   }
@@ -662,25 +674,25 @@ function tempTooltip(cm, content, ts) {
   if (cm.state.ternTooltip) remove(cm.state.ternTooltip);
   const where = cm.cursorCoords()
   const tip = cm.state.ternTooltip = makeTooltip(where.right + 1, where.bottom, content)
-  
+
   function maybeClear() {
     old = true;
     if (!mouseOnTip) clear();
   }
-  
+
   function clear() {
     cm.state.ternTooltip = null;
     if (tip.parentNode) fadeOut(tip)
     clearActivity()
   }
-  
+
   var mouseOnTip = false, old = false;
-  CodeMirror.on(tip, "mousemove", function () {
+  CM.on(tip, "mousemove", function () {
     mouseOnTip = true;
   });
-  CodeMirror.on(tip, "mouseout", function (e) {
+  CM.on(tip, "mouseout", function (e) {
     const related = e.relatedTarget || e.toElement
-    if (!related || !CodeMirror.contains(tip, related)) {
+    if (!related || !CM.contains(tip, related)) {
       if (old) clear();
       else mouseOnTip = false;
     }
@@ -749,26 +761,32 @@ function WorkerServer(ts) {
   const worker = ts.worker = new Worker()
   worker.postMessage({
     type: "init",
+    projectDir: ts.options.projectDir,
     defs: ts.options.defs,
     plugins: ts.options.plugins,
-    scripts: ts.options.workerDeps
+    files: ts.options.files
   });
   let msgId = 0, pending = {}
-  
-  function send(data, c) {
+
+  function send(data, c = null) {
     if (c) {
       data.id = ++msgId;
       pending[msgId] = c;
     }
     worker.postMessage(data);
   }
-  
+
   worker.onmessage = function (e) {
     const data = e.data
     if (data.type == "getFile") {
       getFile(ts, data.name, function (err, text) {
-        send({type: "getFile", err: String(err), text: text, id: data.id});
-      });
+        //log.info("Getting file", data.name, data, err,text)
+        send({
+          type: "getFile",
+          err: String(err),
+          text: text, id: data.id
+        })
+      })
     } else if (data.type == "debug") {
       window.console.log(data.message);
     } else if (data.id && pending[data.id]) {
@@ -780,7 +798,7 @@ function WorkerServer(ts) {
     for (let id in pending) pending[id](e);
     pending = {};
   };
-  
+
   this.addFile = function (name, text) {
     send({type: "add", name: name, text: text});
   };
@@ -791,3 +809,5 @@ function WorkerServer(ts) {
     send({type: "req", body: body}, c);
   };
 }
+
+export default CM.TernServer

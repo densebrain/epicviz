@@ -1,0 +1,22 @@
+@import 'themes';
+@import 'repl-common';
+@import 'repl-prompt';
+@import 'repl-entries';
+
+
+@mixin containerLeft($theme) {
+  .repl-container-left {
+    flex: 1;
+    display: flex;
+    @include fullHeight();
+    overflow: auto;
+    flex-direction: column;
+
+    .repl-header {
+      height: 5px;
+    }
+
+    @include replEntries($theme);
+    @include replPrompt($theme);
+  }
+}
