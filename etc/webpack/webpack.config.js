@@ -25,16 +25,20 @@ function makeConfig(isMain) {
       /codemirror/,
       /highlight\.js/,
       /octokit/,
+      /hot/,
       /hot-loader/,
       /node-fetch/,
       ///\/tern\//,
       ///acorn/,
-      //"react-dom",
+      // /react/,
       // /babel/,
+      // /react/,
       /react-hot/,
+      /plotly\.js/,
+      //"react",
       // /hot-loader/,
-      //"react-dom/,
-      ///material-ui/
+      // /react-dom/,
+      // /material-ui/
     ]
     return nodeExternals({
       whitelist
@@ -57,7 +61,7 @@ function makeConfig(isMain) {
         main: Path.resolve(rootPath, 'src', 'main'),
         test: Path.resolve(rootPath, 'src', 'test'),
         'node-fetch': "common/Fetch",
-        'react-dom': '@hot-loader/react-dom',
+        //'react-dom': '@hot-loader/react-dom',
         renderer: Path.resolve(rootPath, 'src', 'renderer')
 
 
@@ -68,16 +72,6 @@ function makeConfig(isMain) {
       // ENV
       new DefinePlugin(DefinedEnv),
       new Webpack.NamedModulesPlugin(),
-      //new Webpack.optimize.LimitChunkCountPlugin({ maxChunks: 1 }),
-      // Ignore require() calls in vs/language/typescript/lib/typescriptServices.js
-      // new Webpack.IgnorePlugin(
-      //   /^((fs)|(path)|(os)|(crypto)|(source-map-support))$/,
-      //   /vs(\/|\\)language(\/|\\)typescript(\/|\\)lib/
-      // ),
-      // new Webpack.ContextReplacementPlugin(
-      //   /monaco-editor(\\|\/)esm(\\|\/)vs(\\|\/)editor(\\|\/)common(\\|\/)services/
-      // )
-
     ],
     /**
      * Node Shims
@@ -89,65 +83,25 @@ function makeConfig(isMain) {
 
     },
 
-    // optimization: {
-    //   minimize: false,
-    //   namedModules: true,
-    //   concatenateModules: true,
-    // },
+    optimization: {
+      minimize: false,
+      namedModules: true,
+      concatenateModules: true,
+    },
 
     cache: true,
 
     module: {
-      //noParse: [/\/tern\//],
-      //noParse: [/acorn/],
       rules: [
-        // {
-        //   include: /worker\.js$/,
-        //   loaders: ['worker-loader'],
-        //   // options: { inline: true }
-        // },
-
-
-        // {
-        //   test: /\.js$/,
-        //   include: /monaco-editor/,
-        //   use: ["source-map-loader","babel-loader"],
-        //   enforce: "pre"
-        // }
-        // {
-        //   test: /\.js$/,
-        //   include: /monaco-editor/,
-        //   use: ["source-map-loader","babel-loader"],
-        //   enforce: "pre"
-        // }
-        // {
-        //   include: /\.js$/,
-        //   exclude: [/acorn\//],
-        //   use: ["babel-loader"],
-        //
-        // },
-        // {
-        //   test: /^\.(scss|css)$/,
-        //   use: ['style-loader!css-loader!sass-loader']
-        // },
-        // {
-        //   test: /\.jsx?$/,
-        //     //exclude: /node_modules/,
-        //   include: /node_modules/,
-        //     use: [{
-        //     //Path.resolve(rootPath,"node_modules",
-        //     loader: "babel-loader",
-        //     options: {
-        //       cacheDirectory: true
-        //     }
-        //   }]
-        // },
+        {
+          test: /plotly\.js\/.*\.js/,
+          use: ['ify-loader']
+        },
         {
           test: /\.js$/,
           exclude: [/node_modules/],
           include: [/renderer/],
           use: [{
-            //Path.resolve(rootPath,"node_modules",
             loader: "babel-loader",
             options: {
               cacheDirectory: true,
@@ -166,62 +120,15 @@ function makeConfig(isMain) {
               ],
               plugins: [
                 // plugin-proposal-decorators is only needed if you're using experimental decorators in TypeScript
-                //["@babel/plugin-proposal-decorators", {decoratorsBeforeExport: true}],
+                //["@babel/plugin-proposal-decorators", {legacy: true}],
                 ["@babel/plugin-proposal-class-properties", {loose: true}],
                 ["@babel/plugin-syntax-dynamic-import"],
-                //["react-hot-loader/babel"]
+                ["react-hot-loader/babel"]
               ],
               sourceMaps: "both"
             }
           }]
-        },
-        // {
-        //   test: /\.jsx?$/,
-        //   include: [/monaco-editor/,/vscode/],
-        //   use: [{
-        //     //Path.resolve(rootPath,"node_modules",
-        //     loader: "babel-loader",
-        //     options: {
-        //       cacheDirectory: true,
-        //       babelrc: false,
-        //       presets: [
-        //         [
-        //           "@babel/preset-env",
-        //           {
-        //             debug: true,
-        //             targets: {
-        //               electron: "4.0.2"
-        //             }
-        //           }
-        //         ],
-        //         //"@babel/preset-react"
-        //       ],
-        //       plugins: [
-        //         // plugin-proposal-decorators is only needed if you're using experimental decorators in TypeScript
-        //         // ["@babel/plugin-proposal-decorators", {legacy: true}],
-        //         // ["@babel/plugin-proposal-class-properties", {loose: true}],
-        //         ["@babel/plugin-syntax-dynamic-import"],
-        //         //["react-hot-loader/babel"]
-        //       ],
-        //       sourceMaps: "both"
-        //     }
-        //   }]
-        // },
-        // {
-        //   test: /\.([jt])sx?$/,
-        //   use: ["source-map-loader"],
-        //   enforce: "pre"
-        // }
-        // {
-        //   test: /\.jsx?$/,
-        //   include: /node_modules/,
-        //   use: ['react-hot-loader/webpack'],
-        // },
-        // {
-        //   test: /\.([jt])sx?$/,
-        //   use: ["source-map-loader"],
-        //   enforce: "pre"
-        // }
+        }
       ]
     },
   }

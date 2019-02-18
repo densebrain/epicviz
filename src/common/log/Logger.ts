@@ -13,7 +13,7 @@ export enum LogLevel {
   error
 }
 
-type LogEventListener = (level: LogLevel, tag: string, ...args: any[]) => void
+export type LogEventListener = (level: LogLevel, tag: string, ...args: any[]) => boolean
 
 export interface ILogger {
   verbose(...args: any[]): void
@@ -47,11 +47,12 @@ export function getLogger(name: string): ILogger {
 
   const newLogger = [...LogLevelNames, 'log'].reduce((logger: ILogger, level) => {
     logger[level as any] = (...args: any[]) => {
-      const msgLevel = (LogLevel as any)[level as any] as LogLevel || LogLevel.info
+      const
+        msgLevel = (LogLevel as any)[level as any] as LogLevel || LogLevel.info,
+        sendToConsole = listeners.every(listener => !listener(level as any,name,...args)),
+        console = (global as any).originalConsole || global.console
 
-      listeners.forEach(listener => listener(level as any,name,...args))
-
-      if (msgLevel < Threshold)
+      if (!sendToConsole || console === logger || msgLevel < Threshold)
         return
 
 

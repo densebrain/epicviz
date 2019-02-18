@@ -5,6 +5,7 @@
 
 //let server;
 import getLogger from "common/log/Logger"
+import {makeRequireFromPath} from "common/util/Require"
 
 const ctx: Worker = self as any
 const log = getLogger(__filename)
@@ -18,7 +19,7 @@ const
   Path = realRequire("path"),
   Module = realRequire("module"),
   Process = realRequire("process"),
-  workerRequire = Module.createRequireFromPath(Path.resolve(Process.cwd(), "node_modules"))
+  workerRequire = makeRequireFromPath(Path.resolve(Process.cwd(), "node_modules"))
 
 workerRequire("acorn/dist/acorn.js")
 workerRequire("acorn-loose/dist/acorn-loose.js")
@@ -39,9 +40,9 @@ workerRequire("tern/plugin/doc_comment.js");
 
 const defs = [
   // // @ts-ignore
-  workerRequire("tern/defs/browser"),
+  workerRequire("tern/defs/browser.json"),
   // // @ts-ignore
-  workerRequire("tern/defs/ecmascript"),
+  workerRequire("tern/defs/ecmascript.json"),
   require("./GlobalEditorAPI.json")
   // // @ts-ignore
   // workerRequire("tern/defs/underscore")

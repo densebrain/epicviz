@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "lib": ["esnext","dom","dom.iterable"],
-    "target": "esnext",
+    "target": "es2017",
     "module": "commonjs",
     "moduleResolution": "node",
     "noImplicitReturns": true,

@@ -3,7 +3,7 @@ import {cold, setConfig} from "react-hot-loader"
 
 import getLogger from "common/log/Logger"
 setConfig({
-  //logLevel: 'debug',
+  logLevel: 'debug',
   pureSFC: true,
   pureRender: true,
   // onComponentRegister: (type, name, file) =>

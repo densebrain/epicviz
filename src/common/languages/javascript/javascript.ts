@@ -7,7 +7,7 @@ import 'codemirror/lib/codemirror.css'
 import 'codemirror/theme/darcula.css'
 import 'codemirror/addon/hint/show-hint.css'
 import 'codemirror/addon/hint/show-hint'
-import TernServerClient from  './tern-client'
+import TernServerClient from './tern-client'
 import * as Path from "path"
 import * as Fs from "async-file"
 import getLogger from "common/log/Logger"
@@ -21,76 +21,42 @@ import {
 import {StringMap} from "common/Types"
 import Deferred from "common/Deferred"
 import {shortId} from "common/IdUtil"
+import {stopEvent} from "renderer/util/Event"
+import {getCommandManager} from "common/command-manager"
+import {getWorkspace} from "renderer/actions/WorkspaceActions"
 
 
 const
   log = getLogger(__filename),
-  RunWorker = require("!!worker-loader!ts-loader?transpileOnly=true!./run-worker.ts"),
+  //RunWorker = require("!!worker-loader!ts-loader?transpileOnly=true!./run-worker.ts"),
   GlobalEditorAPI = require("!!raw-loader!./GlobalEditorAPI.ts")
 
 
 namespace JavaScript {
-  let server:any | null = null
+  let server: any | null = null
 
-  type RunRequestWrapper = {
-    deferred:Deferred<IWorkspaceRunResponseResult>
-    request:IWorkspaceRunRequest
-    onOutput: (output:any[]) => void
+  export enum RunMode {
+    Direct,
+    Worker
   }
 
-  const
-    runWorker = new RunWorker(),
-    runRequests:StringMap<RunRequestWrapper> = {}
+  const runMode = RunMode.Direct
 
-  runWorker.onmessage = (event) => {
-    const
-      data = event.data as IWorkspaceRunResponse,
-      {id,type,payload} = data,
-      wrapper = runRequests[id]
-
-    log.info("Received event", data)
-
-    switch(type) {
-      case "output":
-        wrapper.onOutput(payload as WorkspaceRunResponsePayload<"output">)
-        break
-      case "result":
-        delete runRequests[id]
-
-        if (!wrapper) {
-          log.error("Unable to find pending request for", id)
-          return
-        }
-
-        wrapper.deferred.resolve(payload as WorkspaceRunResponsePayload<"result">)
-        break
+  export async function executeRunRequest(dir: string, command: WorkspaceRunCommand, payload?: ISnippet | null, onOutput?: ((output: any[]) => void) | null): Promise<IWorkspaceRunResponseResult> {
+    if (runMode === RunMode.Direct) {
+      const {executeRunRequest} = await import("common/languages/javascript/WorkspaceRunnerDirect")
+      return executeRunRequest(dir, command, payload, onOutput)
+    } else if (runMode === RunMode.Worker) {
+      const {executeRunRequest} = await import("common/languages/javascript/WorkspaceRunnerWorkerClient")
+      return executeRunRequest(dir, command, payload, onOutput)
     }
 
-
-
-  }
-
-  async function executeRunRequest(dir:string, command:WorkspaceRunCommand, payload?: ISnippet | null, onOutput?:((output:any[]) => void) | null):Promise<IWorkspaceRunResponseResult> {
-    const
-      id = shortId(),
-      deferred = new Deferred<IWorkspaceRunResponseResult>(),
-      request = {
-        id,
-        dir,
-        command,
-        payload
-      }
-
-    runRequests[id] = {deferred,request,onOutput}
-    runWorker.postMessage(request)
-    const result = await deferred.promise
-    log.info("Result",result)
-    return result
+    return null
   }
 
 
-  export async function run(dir: string, snippet: ISnippet, onOutput?:((output:any[]) => void) | null): Promise<IWorkspaceRunResponseResult> {
-    const result = await executeRunRequest(dir, "execute", snippet, (output:any[]) => {
+  export async function run(dir: string, snippet: ISnippet, onOutput?: ((output: any[]) => void) | null): Promise<IWorkspaceRunResponseResult> {
+    const result = await executeRunRequest(dir, "execute", snippet, (output: any[]) => {
       onOutput && onOutput(output)
     })
     log.info("run result", result)
@@ -115,33 +81,97 @@ namespace JavaScript {
       }
     })
 
+    editor.on("cursorActivity", function (cm) {
+      server.updateArgHints(cm)
+    })
+
+
+    // HISTORY NAVIGATION
+    let historyIndex = -1
+    let navigatedHistory = false
+
+    const navigateHistory = (editor:CodeMirror.Editor,event: KeyboardEvent):boolean => {
+      const
+        cursor = (editor as any).getCursor(),
+        isLine0 = cursor.line === 0,
+        history = getWorkspace().history,
+        doc = editor.getDoc()
+
+      if (navigatedHistory && !['ArrowUp','ArrowDown'].includes(event.key)) {
+        navigatedHistory = false
+        historyIndex = -1
+      }
+
+      if (event.key === "ArrowUp" && isLine0) {
+        if (!navigatedHistory) {
+          historyIndex = getWorkspace().history.length
+        }
+
+        if (historyIndex < 0) {
+          return false
+        }
+
+        stopEvent(event)
+        historyIndex = Math.max(0,historyIndex - 1)
+        navigatedHistory = true
+
+        const snippet = history[historyIndex]
+        if (!snippet) {
+          navigatedHistory = false
+          historyIndex = -1
+          return false
+        }
+
+        doc.setValue(snippet.code)
+        return true
+      }
+
+      if (event.key === "ArrowDown" && navigatedHistory && historyIndex > -1) {
+        historyIndex = Math.min(history.length, historyIndex + 1)
+        navigatedHistory = true
+        doc.undo()
+        stopEvent(event)
+        return true
+      }
+
+      return false
+    }
+
+    editor.on("keydown", (editor: CodeMirror.Editor, event: KeyboardEvent) => {
+      log.info("Editor key", event.key)
+
+
+      if (navigateHistory(editor,event))
+        return
+
+
+      getCommandManager().onKeyDown(event)
+
+    })
 
     editor.setOption("extraKeys", {
-      "Ctrl-Space": function (cm) {
-        server.complete(cm);
+      "Ctrl-Space": function (editor) {
+        server.complete(editor)
       },
-      "Ctrl-I": function (cm) {
-        server.showType(cm);
+      "Ctrl-D,Cmd-D": function (editor) {
+        server.showType(editor)
       },
-      "Ctrl-O": function (cm) {
-        server.showDocs(cm);
-      },
-      "Alt-.": function (cm) {
-        server.jumpToDef(cm);
-      },
-      "Alt-,": function (cm) {
-        server.jumpBack(cm);
-      },
-      "Ctrl-Q": function (cm) {
-        server.rename(cm);
-      },
-      "Ctrl-.": function (cm) {
-        server.selectName(cm);
+      "Alt-P": function (editor) {
+        server.showDocs(editor)
       }
+      // "Alt-.": function (cm) {
+      //   server.jumpToDef(cm);
+      // },
+      // "Alt-,": function (cm) {
+      //   server.jumpBack(cm);
+      // },
+      // "Ctrl-Q": function (cm) {
+      //   server.rename(cm);
+      // },
+      // "Ctrl-.": function (cm) {
+      //   server.selectName(cm);
+      // }
     })
-    editor.on("cursorActivity", function (cm) {
-      server.updateArgHints(cm);
-    });
 
 
     return server

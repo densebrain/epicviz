@@ -20,6 +20,9 @@ import Notifications from "renderer/components/elements/Notifications"
 import BlockingWorkProgress from "renderer/components/elements/BlockingWorkProgress"
 import {isMain} from "common/Process"
 import {getHot} from "common/HotUtil"
+import {useEffect} from "react"
+import {openWorkspaceFolder} from "renderer/actions/WorkspaceActions"
+import {projectDirSelector} from "renderer/store/selectors/UISelectors"
 
 const history = isMain() ? null : getHot(module, 'history', require('history/createHashHistory').default) as any
 
@@ -47,14 +50,21 @@ function baseStyles(): StyleDeclaration {
 }
 
 interface SP {
+  projectDir: string
 }
 
-const selectors: Selectors<IThemedProperties, SP> = {}
+const selectors: Selectors<IThemedProperties, SP> = {
+  projectDir: projectDirSelector
+}
 
-export default StyledComponent<IThemedProperties, SP>(baseStyles, selectors)(function App(props: IThemedProperties & SP): React.ReactElement<IThemedProperties> {
-  const
-    {classes} = props
+export default StyledComponent<IThemedProperties, SP>(baseStyles)(function App(props: IThemedProperties & SP): React.ReactElement<IThemedProperties> {
+  const {classes,projectDir} = props
 
+  // useEffect(() => {
+  //   if (!projectDir || projectDir.isEmpty()) {
+  //     openWorkspaceFolder()
+  //   }
+  // },[projectDir])
 
   return <div className={classes.app}>
 

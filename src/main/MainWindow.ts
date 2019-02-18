@@ -53,8 +53,7 @@ export async function checkMainWindow():Promise<BrowserWindow> {
 		webPreferences: {
 			webSecurity: false,
 			nodeIntegration: true,
-			nodeIntegrationInWorker: true,
-			nodeIntegrationInSubFrames: true
+			nodeIntegrationInWorker: true
 		},
 		minHeight: WindowMinHeight,
 		minWidth: WindowMinWidth,

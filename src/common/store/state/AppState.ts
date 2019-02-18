@@ -6,7 +6,6 @@ import {IAcceleratorMap} from "common/models/CommandTypes"
 import {IAppStatus, makeDefaultAppStatus} from "common/models/AppStatus"
 import {Workspace} from "common/models/Workspace"
 
-
 export class AppState implements State<string> {
   static Key = "AppState"
 
@@ -15,7 +14,9 @@ export class AppState implements State<string> {
   }
 
   type = AppState.Key
-  config: IConfig
+  config: IConfig = {
+    maxHistory: 50
+  }
 
   customAccelerators: IAcceleratorMap
 

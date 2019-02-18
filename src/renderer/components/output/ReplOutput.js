@@ -117,12 +117,18 @@ const ReplOutputType = {
   object: (o) => {
 
     if(_.isError(o)) {
+      const
+        stack = o.stack.split(EOL),
+        lines = stack.slice(1),
+        firstGoodIndex = lines.findIndex(line => /Error:/.test(line)),
+        goodStack = firstGoodIndex === -1 ? stack : lines.slice(Math.max(0,firstGoodIndex))
+
       let errorLine, errorFile, errorPosition, first, rest, syntaxError;
-      if (o instanceof SyntaxError && !o.stack.match(/^SyntaxError:/)) {
-        [errorFile, errorLine, errorPosition, first, ...rest] = o.stack.split(EOL);
+      if (o instanceof SyntaxError && !goodStack[0].match(/^SyntaxError:/)) {
+        [errorFile, errorLine, errorPosition, first, ...rest] = goodStack;
         syntaxError = {error:errorLine, caret: errorPosition, file: errorFile};
       } else {
-        [first, ...rest] = o.stack.split(EOL);
+        [first, ...rest] = goodStack;
       }
       return (<ReplEntryOutputError message={first} trace={rest} syntaxError={syntaxError}>
       </ReplEntryOutputError>);

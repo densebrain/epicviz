@@ -2,7 +2,7 @@
 @import 'repl-common';
 
 @mixin replEntryStatus($theme) {
-  .repl-entry-status {
+  .repl-entry-status, * .repl-entry-status {
     padding-right: 8px;
 
     .repeat,

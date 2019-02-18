@@ -119,11 +119,11 @@ CM.TernServer.prototype = {
     cm.showHint({hint: this.getHint});
   },
 
-  showType: function (cm, pos, c) {
+  showType: function (cm, pos = null, c = null) {
     showContextInfo(this, cm, pos, "type", c);
   },
 
-  showDocs: function (cm, pos, c) {
+  showDocs: function (cm, pos = null, c = null) {
     showContextInfo(this, cm, pos, "documentation", c);
   },
 

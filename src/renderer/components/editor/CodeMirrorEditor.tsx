@@ -8,6 +8,7 @@ import 'codemirror/addon/dialog/dialog.css'
 import 'codemirror/addon/dialog/dialog'
 import 'codemirror/addon/hint/show-hint.css'
 import 'codemirror/addon/hint/show-hint'
+import 'codemirror/addon/selection/mark-selection'
 
 
 import * as React from "react"
@@ -26,6 +27,7 @@ import {getCommandManager} from "common/command-manager"
 import {lighten} from "@material-ui/core/styles/colorManipulator"
 import * as Path from "path"
 import * as Fs from "fs"
+import {stopEvent} from "renderer/util/Event"
 
 const
   Sh = require("shelljs"),
@@ -182,27 +184,21 @@ export default StyledComponent<P>(baseStyles,{withTheme:true})(function CodeMirr
 
     const
       doc = new CodeMirror.Doc(value || "","javascript"),
-      newEditor = codeMirrorRef.current = CodeMirror(wrapper, {
+      newEditor = codeMirrorRef.current = CodeMirror(wrapper as any, {
         value: doc,
-        //autofocus: autoFocus,
+        autofocus: autoFocus,
         //lineWrapping: true,
+        styleSelectedText: true,
         lineNumbers: true,
         mode: language,
         theme: "darcula"
-      })
+      } as any)
 
 
     const server = JavaScript.attach(dir,newEditor)
     server.addDoc(filePath,doc)
 
-    // ON CHANGES REPORT NEW DATA
-    newEditor.on("change",() => {
-      onChangedInternal(newEditor.getValue())
-    })
-
-    //newEditor.swapDoc(doc)
-    // ON VIEWPORT CHANGE - ADJUST
-    newEditor.on("viewportChange",editor => {
+    newEditor.on("viewportChange", editor => {
       const
         scrollInfo = editor.getScrollInfo(),
         doc = editor.getDoc(),
@@ -218,22 +214,35 @@ export default StyledComponent<P>(baseStyles,{withTheme:true})(function CodeMirr
       }
       const
         viewport = editor.getViewport(),
-        contentHeight = editor.heightAtLine(lines,null,true)
+        contentHeight = editor.heightAtLine(lines, null, true)
 
-      height =  Math.min(height, maxHeight,sizes.editor.minHeight)
-      editor.setSize(scrollInfo.clientWidth,height)
+      height = Math.min(height, maxHeight, sizes.editor.minHeight)
+      editor.setSize(scrollInfo.clientWidth, height)
     })
 
-    newEditor.on("keydown", (editor:CodeMirror.Editor,event:KeyboardEvent) => {
-      getCommandManager().onKeyDown(event)
-      // if (event.code === "Enter") {
-      //
-      // }
+    // ON CHANGES REPORT NEW DATA
+    newEditor.on("change",() => {
+      onChangedInternal(newEditor.getValue())
     })
+
+
 
     setEditor(newEditor)
     setServer(server)
+
+    if (DEBUG) {
+      Object.assign(global, {
+        editor: newEditor
+      })
+    }
+
     return () => {
+      if (DEBUG) {
+        Object.assign(global, {
+          editor: null
+        })
+      }
+
       server.destroy()
     }
   }, [filePath, wrapperRef, textareaRef])

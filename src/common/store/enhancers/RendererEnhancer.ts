@@ -3,8 +3,6 @@ import {StoreEnhancerStoreCreator} from "redux"
 import {AppStoreSyncKeys, ISyncActionMessage} from "common/store/AppStoreTypes"
 import {ActionMessageFilter, IActionMessageHandler} from "common/store/enhancers/ActionMessageFilter"
 import {ActionMessage} from "typedux"
-import {toPlainObject} from "typetransform"
-import {cloneObjectShallow} from "common/ObjectUtil"
 import {getWindowId} from "common/ElectronUtil"
 import {getProcessTypeName} from "common/Process"
 import EventHub from "common/events/Event"
@@ -73,24 +71,24 @@ function appStoreEnhancer(storeCreator):StoreEnhancerStoreCreator {
       if (fromChildId === id)
         return
 
-      nextTick(() => {
-        storeDotDispatch(action)
+      //nextTick(() => {
+      storeDotDispatch(action)
 
-        const
-          newState = store.getState()
+      const
+        newState = store.getState()
 
-        // IF CHANGED - SEND TO CHILDREN
-        if (AppStoreSyncKeys.includes(action.leaf) && !fromServer && state !== newState) {
+      // IF CHANGED - SEND TO CHILDREN
+      if (AppStoreSyncKeys.includes(action.leaf) && !fromServer && state !== newState) {
 
-          // If it's a reducer then process it, otherwise - wait for server
-          // to process the action and send data
-          nextTick(() => sendStoreAction(action))
+        // If it's a reducer then process it, otherwise - wait for server
+        // to process the action and send data
+        nextTick(() => sendStoreAction(action))
 
-        }
-      })
-
-
+      }
     }
+
+
+    //}
     return store
   }
 }

@@ -56,9 +56,9 @@ export default class ReplOutputArray extends React.Component {
     return (
       <span className='array-rec'>
       {
-        _.map(this.getKeysButLength(), (key) => {
+        this.getKeysButLength().map((key,idx) => {
           const value = ReplOutput.readProperty(this.props.array, key);
-          const idx = parseInt(key, 10);
+          //const idx = parseInt(key, 10);
           return (
             <div className='array-entry' key={idx}>
               {

@@ -5,7 +5,7 @@
 
 @mixin replEntries($theme) {
 
-    .repl-snippet {
+  .repl-snippet, * .repl-snippet {
       //display: flex;
       //margin: 0;
       //padding: 5px;

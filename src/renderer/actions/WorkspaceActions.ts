@@ -1,9 +1,10 @@
 import getLogger from "common/log/Logger"
 import {remote} from "electron"
 import {UIActionFactory} from "renderer/store/actions/UIActionFactory"
-import {makeSnippet, Workspace} from "common/models/Workspace"
+import {IDataSet, IOutput, makeOutput, makeSnippet, OutputType, RowTypes, Workspace} from "common/models/Workspace"
 import JavaScript from "common/languages/javascript/javascript"
-import {isFunction} from "typeguard"
+import {getValue, isFunction} from "typeguard"
+import delay from "common/util/Delay"
 
 const log = getLogger(__filename)
 
@@ -45,10 +46,13 @@ export async function runWorkspace(workspace:Workspace):Promise<void> {
     output: []
   }
 
+
   patchWorkspace(ws => ({
-    history: [...ws.history, snippet],
+    history: [...ws.history.slice(Math.max(0,ws.history.length - 50),ws.history.length), snippet],
     snippet: makeSnippet()
   }))
+
+  //await delay(50)
 
   const updateOutput = (output:any[]):void => {
     patchWorkspace(current => {
@@ -63,7 +67,10 @@ export async function runWorkspace(workspace:Workspace):Promise<void> {
       const newSnippet = {...history[index]}
       history[index] = {
         ...newSnippet,
-        output: [...newSnippet.output,...output]
+        output: [
+          ...newSnippet.output,
+          ...output
+        ]
       }
       return {
         ...current,
@@ -72,10 +79,29 @@ export async function runWorkspace(workspace:Workspace):Promise<void> {
     })
   }
 
-  const response = await JavaScript.run(workspace.dir,snippet,updateOutput)
-  updateOutput(response.output)
+  const
+    response = await JavaScript.run(workspace.dir,snippet,updateOutput),
+    output = response.error ? [response.error] : !response.output ? [] :
+      Array.isArray(response.output) ?
+        response.output :
+        [response.output]
+
+  updateOutput(output)
+}
+
+export function clearHistory():void {
+  patchWorkspace({history: []})
 }
 
 export function getWorkspace():Workspace | null {
   return getRendererStoreState().UIState.workspace
+}
+
+export function addOutput<T extends OutputType>(type:T,data:Array<IDataSet<RowTypes<T>>>):IOutput<T> {
+  const newOutput = makeOutput(type)
+  patchWorkspace(ws => ({
+    ...ws,
+    outputs: [...ws.outputs,newOutput]
+  }))
+  return newOutput
 }

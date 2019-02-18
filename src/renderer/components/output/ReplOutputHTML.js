@@ -1,5 +1,6 @@
-import React from 'react';
-import _ from 'lodash';
+import * as React from 'react';
+import * as ReactDOM from 'react-dom';
+import * as _ from 'lodash';
 import ReplConstants from './ReplConstants';
 import md5 from 'md5';
 
@@ -19,7 +20,7 @@ export default class ReplOutputHTML extends React.Component {
   }
 
   componentDidMount() {
-    this.element = React.findDOMNode(this);
+    this.element = ReactDOM.findDOMNode(this);
   }
 
   onToggleHTMLView() {

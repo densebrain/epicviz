@@ -1,6 +1,6 @@
 import {Context as VMContext, createContext as createVMContext, runInContext as runInVMContext} from 'vm'
 import {transform} from "@babel/core"
-import getLogger, {LogLevel} from "common/log/Logger"
+import getLogger, {LogEventListener, LogLevel} from "common/log/Logger"
 import {
   ISnippet,
   IWorkspaceRunRequest,
@@ -9,25 +9,31 @@ import {
   WorkspaceRunStatus
 } from "common/models/Workspace"
 import {isPromise} from "typeguard"
-import {npmInstall} from "common/languages/javascript/GlobalEditorAPI"
+
 import delay from "common/util/Delay"
-import {realRequire} from "common/util/Require"
+import {makeRequireFromPath, realRequire} from "common/util/Require"
+import {makeReplContext} from "common/client/Context"
 const ctx: Worker = self as any
 const
   log = getLogger(__filename),
+  errorLog = getLogger("REPL-ERROR"),
   vmLog = getLogger("REPL-LOG")
 
-Object.assign(global,{
-  window: global
-})
+// if (typeof window === "undefined") {
+//   Object.assign(global,{
+//     window: global
+//   })
+// }
+//
+// Object.assign(global,{
+//   console: log,
+//   originalConsole: global.console
+// })
 
 const
   Path = realRequire("path"),
   Module = realRequire("module")
 
-Object.assign(global,{
-  window: global
-})
 
 namespace WorkspaceRunner {
   let runRequire:NodeRequire | null = null
@@ -35,11 +41,21 @@ namespace WorkspaceRunner {
   let runContext:VMContext | null = null
   let dir:string | null = null
 
+  export function addLogEventListener(listener:LogEventListener):void {
+    vmLog.on(listener)
+    log.on(listener)
+  }
+
+  export function removeLogEventListener(listener:LogEventListener):void {
+    vmLog.off(listener)
+    log.off(listener)
+  }
+
   async function init(data:IWorkspaceRunRequest, result:IWorkspaceRunResponseResult):Promise<IWorkspaceRunResponseResult> {
     if (data.dir !== dir || !runRequire || !runContext) {
       dir = data.dir
 
-      runRequire = Module.createRequireFromPath(
+      runRequire = makeRequireFromPath(
         Path.resolve(dir, "node_modules")
       )
       runRequirePatch = ((...args) => {
@@ -52,10 +68,8 @@ namespace WorkspaceRunner {
       const context = {
         ...global,
         require: runRequirePatch,
-        npmInstall: function(name:string) {
-          return npmInstall(dir,name)
-        },
-        console: vmLog
+        console: vmLog,
+        ...makeReplContext(log,dir)
       }
 
       runContext = createVMContext(context)
@@ -72,10 +86,11 @@ namespace WorkspaceRunner {
     try {
       code = transform(snippet.code).code
     } catch (err) {
-      log.error("Compile error",err)
+      //log.error("Compile error",err)
       result.status = WorkspaceRunStatus.CompileError
       result.stack = err.stack.toString()
-      result.error = err.message
+      result.message = err.message
+      result.error = err
       return result
     }
 
@@ -92,10 +107,11 @@ namespace WorkspaceRunner {
       await delay(100)
       return result
     } catch (err) {
-      log.error("Run error",err)
+      //log.error("Run error",err)
       result.status = WorkspaceRunStatus.Error
       result.stack = err.stack.toString()
-      result.error = err.message
+      result.message = err.message
+      result.error = err
       return result
     }
   }
@@ -107,52 +123,4 @@ namespace WorkspaceRunner {
   }
 }
 
-
-
-ctx.onmessage = async (event) => {
-  const
-    data = event.data as IWorkspaceRunRequest,
-    {id,command} = data
-
-  const
-    response:IWorkspaceRunResponse<"result"> = {
-      id,
-      type: "result",
-      payload: {
-        status: WorkspaceRunStatus.Created
-      }
-    }
-
-  log.info("Event received",data)
-  const logListener = (level:LogLevel,tag:string,...args:any[]):void => {
-    ctx.postMessage({
-      id,
-      type: "output",
-      payload: [
-        {
-          type: "log",
-          level,
-          tag,
-          args
-        }
-      ]
-    })
-  }
-
-  vmLog.on(logListener)
-  try {
-    response.payload = await WorkspaceRunner.Handlers[command](data, response.payload)
-  } finally {
-    vmLog.off(logListener)
-  }
-
-  try {
-    ctx.postMessage(response)
-  } catch (err) {
-    log.error("Transmit error",err)
-    response.payload.status = WorkspaceRunStatus.TransmitError
-    response.payload.stack = err.stack.toString()
-    response.payload.output = null
-    response.payload.error = err.message
-  }
-}
+export default WorkspaceRunner

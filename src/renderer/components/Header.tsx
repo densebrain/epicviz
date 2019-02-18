@@ -66,14 +66,14 @@ function baseStyles(theme:Theme):StyleDeclaration<Classes> {
 				...FlexRowCenter,
 				...FillHeight,
 				...Ellipsis,
-        color: primary.main,
+        color: secondary.main,
         fontSize: rem(1.1),
 			},
 
 			"& .logo": {
 				...FlexAuto,
 				...PositionRelative,
-				color: primary.main,
+				color: secondary.main,
         fontFamily: "Jura",
 				fontWeight: 400,
 				fontSize: rem(1.1),

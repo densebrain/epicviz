@@ -2,6 +2,9 @@ import getLogger from "common/log/Logger"
 import * as Path from "path"
 import * as Fs from "async-file"
 import {shortId} from "common/IdUtil"
+import {IMapPathConfig, MapCoordinateRowType} from "common/client/MapManagementTypes"
+import {getWorkspace} from "renderer/actions/WorkspaceActions"
+
 
 const log = getLogger(__filename)
 
@@ -11,6 +14,34 @@ export interface ISnippet {
   code:string
   timestamp:number
   output:any[]
+}
+
+export type OutputType = "map-path"
+
+export type RowTypes<Type> = Type extends "map-path" ?
+  MapCoordinateRowType :
+  never
+
+export interface IDataSet<RowType = any> {
+  config: IMapPathConfig
+  columns:Array<string>
+  rows:Array<RowType>
+}
+
+export interface IOutput<Type = any> {
+  id:string
+  name:string
+  type:Type
+  dataSets:Array<IDataSet<RowTypes<Type>>>
+}
+
+export function makeOutput<T extends OutputType>(type:T):IOutput<T> {
+  return {
+    id: shortId(),
+    name: `Output-${getWorkspace().history.length + 1}`,
+    type,
+    dataSets: Array<IDataSet<RowTypes<T>>>()
+  }
 }
 
 export function makeSnippet(name:string = "", code:string = "",timestamp:number = Date.now(), output:any[] = []):ISnippet {
@@ -30,6 +61,8 @@ export class Workspace {
   snippet:ISnippet = makeSnippet()
 
   filename:string
+
+  outputs = Array<IOutput>()
 
   constructor(public dir:string) {
     this.filename = Workspace.makeWorkspaceFile(dir)
@@ -52,8 +85,9 @@ export class Workspace {
     const
       filename = this.filename,
       state = {
-        history: this.history,
-        snippet: this.snippet
+        history: this.history.map(it => ({...it,output:[]})),
+        snippet: this.snippet,
+        outputs: []
       }
 
     log.info("Saving",filename)
@@ -102,9 +136,10 @@ export type WorkspaceRunResponseType = "result" | "output"
 
 export interface IWorkspaceRunResponseResult {
   status: WorkspaceRunStatus
-  error?: string | null
+  message?: string | null
   stack?:string | null
   output?: any | null
+  error?: Error | null
 }
 
 export type WorkspaceRunResponsePayload<Type> = Type extends "result" ?

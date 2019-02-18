@@ -1,34 +1,26 @@
-
-import {IThemedProperties, mergeStyles, withStatefulStyles} from "renderer/styles/ThemedStyles"
+import {IThemedProperties} from "renderer/styles/ThemedStyles"
 import * as React from "react"
-import {connect} from "common/util/ReduxConnect"
-import {createStructuredSelector} from "reselect"
 import baseStyles from "./SplitPane.styles"
+import {StyledComponent} from "renderer/components/elements/StyledComponent"
 
-const SplitPane = require("react-split-pane").default
+const SplitPane = require("react-split-pane")
 
 export interface IHorizontalSplitPaneProps extends IThemedProperties {
   defaultSize?: number|string
   minSize?: number|string
+  maxSize?: number|string
   primary?: "first"|"second"
   onChange?: (event:any) => any
 }
 
 /**
- * State
- */
-export interface IHorizontalSplitPaneState {}
-
-/**
  * App Navigation
  */
-@withStatefulStyles(baseStyles)
-@connect(createStructuredSelector({}))
-export class HorizontalSplitPane extends React.Component<IHorizontalSplitPaneProps, IHorizontalSplitPaneState> {
-  
-  render() {
-    const {classes, children,...other} = this.props
-    
+//@withStatefulStyles(baseStyles)
+export const HorizontalSplitPane = StyledComponent(baseStyles)((props:IHorizontalSplitPaneProps)=> {
+
+    const {classes, children,onChange,...other} = props
+
     return <SplitPane
       className={classes.root}
       resizerClassName={classes.resizer}
@@ -36,9 +28,10 @@ export class HorizontalSplitPane extends React.Component<IHorizontalSplitPanePro
       pane1ClassName={classes.pane1}
       pane2ClassName={classes.pane2}
       split="horizontal"
+      onDragFinished={onChange}
       {...other}
     >
       {children}
     </SplitPane>
-  }
-}
+
+})

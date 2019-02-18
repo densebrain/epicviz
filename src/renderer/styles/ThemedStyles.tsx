@@ -240,6 +240,8 @@ export interface IThemePalette {
 	action: Color
 	success: Color
 	error: Color
+  warn: Color
+	info: Color
   open: Color
   closed: Color
 	notifications: Color

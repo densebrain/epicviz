@@ -1,10 +1,6 @@
 import * as React from "react"
-import {useCallback, useMemo, useRef, useState} from "react"
-import * as ReactDOM from "react-dom"
+import {useCallback, useEffect, useRef, useState} from "react"
 import getLogger from "common/log/Logger"
-import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import {faCircle as FASolidCircle, faBell as FASolidBell} from "@fortawesome/pro-solid-svg-icons"
-import {faBell as FALightBell} from "@fortawesome/pro-light-svg-icons"
 
 import {
   CursorPointer,
@@ -15,49 +11,33 @@ import {
   FlexRowCenter,
   FlexScale,
   IThemedProperties,
-  makeDimensionConstraints, makeHeightConstraint,
+  makeDimensionConstraints,
+  makeHeightConstraint,
   makeMarginRem,
   makePaddingRem,
-  mergeClasses, PositionAbsolute,
   PositionRelative,
   rem
 } from "renderer/styles/ThemedStyles"
 import {VerticalSplitPane} from "renderer/components/elements/VerticalSplitPane"
 import {AppActionFactory} from "common/store/actions/AppActionFactory"
 import Header from "renderer/components/Header"
-
-import {getValue, guard} from "typeguard"
 import {useCommandManager} from "renderer/command-manager-ui"
-import {CommandContainerBuilder, CommandType, getCommandManager, ICommandContainerItems} from "common/command-manager"
+import {CommandContainerBuilder, ICommandContainerItems} from "common/command-manager"
 import {StyledComponent} from "renderer/components/elements/StyledComponent"
-import CommonElementIds, {CommonElement} from "renderer/CommonElements"
-import {areDialogsOpen} from "renderer/util/UIHelper"
-import * as $ from 'jquery'
+import CommonElementIds from "renderer/CommonElements"
 import {UIActionFactory} from "renderer/store/actions/UIActionFactory"
-import classNames from "classnames"
-import NotificationList from "renderer/components/elements/NotificationList"
-import EventHub from "common/events/Event"
 import {StringMap} from "common/Types"
-import CodeMirrorEditor from "renderer/components/editor/CodeMirrorEditor"
 import {projectDirSelector} from "renderer/store/selectors/UISelectors"
-import * as Path from "path"
 import {Workspace} from "common/models/Workspace"
 import Repl from "renderer/components/Repl"
+import {openWorkspaceFolder} from "renderer/actions/WorkspaceActions"
+import {HorizontalSplitPane} from "renderer/components/elements/HorizontalSplitPane"
+import ComponentBrowser from "renderer/components/ComponentBrowser"
+import OutputView from "renderer/components/OutputView"
 
 const AvatarDefaultURL = require("renderer/assets/images/avatar-default.png")
 
 const log = getLogger(__filename)
-
-declare global {
-  interface IIssuesLayoutStyles {
-    colors: {
-      bg: string
-      controlsBg: string
-      controlsBgHover: string
-    }
-  }
-}
-
 
 function baseStyles(theme: Theme): any {
   const
@@ -137,7 +117,7 @@ interface SP {
 const selectors = {
   splitters: (state: IRootRendererState) => state.UIState.splitters,
   projectDir: projectDirSelector,
-  workspace: (state:IRootRendererState) => state.UIState.workspace
+  workspace: (state: IRootRendererState) => state.UIState.workspace
 }
 
 const appActions = new AppActionFactory()
@@ -154,83 +134,18 @@ export default StyledComponent<P, SP>(baseStyles, selectors)(function (props: P 
     [value2, setValue2] = useState<string>(""),
     {props: commandManagerProps} = useCommandManager(
       id,
-      useCallback((builder: CommandContainerBuilder): ICommandContainerItems => {
-        //const commandManager = getCommandManager()
-
-        return builder
-          .command(
-            "F5",
-            (cmd, event) => guard(() => {
-              EventHub.emit("SyncAllData")
-            }),
-            {
-              name: "Sync data with Github",
-              type: CommandType.App,
-              hidden: false,
-              overrideInput: true
-            }
-          )
-          .command(
-            "CommandOrControl+o",
-            (cmd, event) => guard(() => {
-
-            }),
-            {
-              name: "Import repo",
-              type: CommandType.App,
-              hidden: false,
-              overrideInput: true
-            }
-          )
-          .command(
-            "CommandOrControl+i",
-            (cmd, event) => guard(() => {
-              if (areDialogsOpen())
-                return
-            }),
-            {
-              name: "Open repo",
-              type: CommandType.App,
-              hidden: false,
-              overrideInput: true
-            }
-          )
-          .command(
-            "CommandOrControl+n",
-            (cmd, event) => guard(() => {
-              if (getRendererStoreState().UIState.dialogs.length)
-                return
-            }),
-            {
-              name: "New Issue",
-              type: CommandType.App,
-              hidden: false,
-              overrideInput: true
-            }
-          )
-          .command(
-            "CommandOrControl+f",
-            (cmd, event) => guard(() => {
-              if (areDialogsOpen())
-                return
-            }),
-            {
-              name: "Find",
-              type: CommandType.App,
-              hidden: false,
-              overrideInput: true
-            }
-          )
-          // .command("ArrowLeft", makeContainerFocusHandler(CommonElement.IssueList), {
-          //   overrideInput: false
-          // })
-          // .command("ArrowRight", makeContainerFocusHandler(CommonElement.IssueView), {
-          //   overrideInput: false
-          // })
-          .make()
-      }, []),
+      useCallback((builder: CommandContainerBuilder): ICommandContainerItems =>
+          builder.make()
+        , []),
       rootRef
     )
+
+
+  useEffect(() => {
+    if (!projectDir || projectDir.isEmpty()) {
+      openWorkspaceFolder()
+    }
+  }, [projectDir])
 
 
   const onSplitterChange = useCallback((splitterId: string) => (newSize: number): void => {
@@ -246,14 +161,21 @@ export default StyledComponent<P, SP>(baseStyles, selectors)(function (props: P 
   >
     <Header/>
     <div className={classes.container}>
-      { workspace &&
+      {workspace &&
       <VerticalSplitPane
         defaultSize={"50%"}
         primary="first"
       >
         <Repl/>
-
-        <div/>
+        <div>
+          <HorizontalSplitPane
+            defaultSize={"50%"}
+            primary="first"
+          >
+            <ComponentBrowser/>
+            <OutputView />
+          </HorizontalSplitPane>
+        </div>
         {/*<CodeMirrorEditor file="" value={value2} onValueChange={setValue2} />*/}
         {/*<MonacoEditor path="/1" value={value} onValueChange={newValue => setValue(newValue)}/>*/}
         {/*<MonacoEditor path="/2" value={value2} onValueChange={newValue => setValue2(newValue)}/>*/}

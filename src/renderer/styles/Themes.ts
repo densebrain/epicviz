@@ -25,12 +25,14 @@ const log = getLogger(__filename)
  */
 const darkPalette = {
   type: "dark",
-  primary: makeMaterialPalette("#555555", "A200", "A400", "A700"), // app icons and text
+  primary: makeMaterialPalette("#0F111A", "A200", "A400", "A700"), // app icons and text
   secondary: makeMaterialPalette("#445fe9", "A200", "A400", "A700"),
   background: makeMaterialPalette("#555555", "A200", "A400", "A700"),
   text: makeMaterialPalette("rgba(0,0,0,0.8)", "A200", "A400", "A700"),
   textNight: makeMaterialPalette("#FFFFFF", "A200", "A400", "A700"),
   error: makeMaterialPalette("#ff3633", "A200", "A400", "A700"),
+  warn: makeMaterialPalette("#fbff66", "A200", "A400", "A700"),
+  info: makeMaterialPalette("#5054ff", "A200", "A400", "A700"),
   success: makeMaterialPalette("#3cff32", "A200", "A400", "A700"),
   action: makeMaterialPalette("#5054ff", "A200", "A400", "A700"),
   open: makeMaterialPalette("#22993E", "A200", "A400", "A700"),

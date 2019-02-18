@@ -3,20 +3,25 @@
 // TOP LINE STUFF
 import 'source-map-support/register'
 import 'common/util/ErrorHandler'
-import "common/util/RendererExt"
-import "./Env"
 
 // CSS
 import "./assets/fonts/fonts.global.scss"
 import "./assets/css/global.scss"
 import "./assets/css/output/repl.scss"
-
+//require("leaflet/dist/leaflet.css")
+//$(iframe.contentDocument.head).append($('<link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css" integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA==" crossorigin=""/>'))
 // REACT SETUP
 import "./ReactHotConfig"
 import "react-hot-loader/patch"
 import * as ReactDOM from "react-dom"
+//import * as ReactDOM from "@hot-loader/react-dom"
 import * as React from "react"
-import {Provider} from "react-redux"
+
+import "common/util/RendererExt"
+import "./Env"
+
+
+
 
 // IMPORT MOMENT TIMEZONES & OTHER FRONT END STUFF
 import "moment-timezone"
@@ -32,21 +37,23 @@ require("sugar").extend()
 
 document.body.classList.add("dark-theme","cm-s-dark-theme")
 
+const appEl = $("#app")
+
 let rendered = false
 
+
 async function renderRoot():Promise<void> {
-  const doRender = async ():Promise<void> => {
+  const doRender = ():void => {
     if (rendered)
       return
 
     rendered = true
-    const Root = (await import("./Root")).default
+
+    const Root = require("./Root").default
 
     ReactDOM.render(
-      <Provider store={getReduxStore()}>
-        <Root/>
-      </Provider>,
-      document.getElementById("app")
+      <Root/>,
+      appEl[0]
     )
   }
 

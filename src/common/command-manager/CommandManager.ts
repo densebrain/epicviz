@@ -562,6 +562,7 @@ export class CommandManager extends EnumEventEmitter<CommandManagerEvent> {
     }
     const
       containers = this.focusedContainers().filter(container => !this.stack.includes(container)),
+      appCommands = Object.values(this.commands).filter(cmd => cmd.type === CommandType.App),
       customAccelerators = getValue(() => this.acceleratorDataSource(), {} as StringMap<string>),
       isInputTarget =
         (event.target && InputTagNames.includes((event.target as HTMLElement).tagName)) ||
@@ -569,49 +570,54 @@ export class CommandManager extends EnumEventEmitter<CommandManagerEvent> {
 
     log.debug(`Key down received`, event, `Ordered containers: `, containers.map(it => it.element))
 
-    let cmd
-
-
-    for (const container of containers) {
-
-      const
-        testMatch = this.matchAcceleratorAndCommand(container.commands, customAccelerators, event)
+    // FUNC FOR TESTING ARRAY OF FUNCS
+    const testCommands = (commands:Array<ICommand>):(ICommand | null) => {
+      const testMatch = this.matchAcceleratorAndCommand(commands, customAccelerators, event)
 
       if (testMatch) {
-        const
-          [testCmd, accel] = testMatch
-
+        const [testCmd, accel] = testMatch
 
         if (testCmd && (!isInputTarget || testCmd.overrideInput || accel.hasNonInputModifier)) {
-          cmd = testCmd
-          break
+          return testCmd
         }
       }
+
+      return null
     }
 
+    let cmd:ICommand | null = testCommands(appCommands)
     if (!cmd) {
-
-      const
-        appCommands = Object
-          .values<ICommand>(Commands)
-          .filter(it => it.type === CommandType.App) as ICommand[]
-
-      for (const appCmd of appCommands) {
-        const
-          testMatch = this.matchAcceleratorAndCommand([appCmd], customAccelerators, event)
-
-        if (testMatch) {
-          const
-            [testCmd, accel] = testMatch
-
-
-          if (testCmd && (!isInputTarget || testCmd.overrideInput || accel.hasNonInputModifier)) {
-            cmd = testCmd
-            break
-          }
-        }
+      for (const container of containers) {
+        cmd = testCommands(container.commands)
+        if (cmd)
+          break
       }
     }
+
+
+    // if (!cmd) {
+    //
+    //   const
+    //     appCommands = Object
+    //       .values<ICommand>(Commands)
+    //       .filter(it => it.type === CommandType.App) as ICommand[]
+    //
+    //   for (const appCmd of appCommands) {
+    //     const
+    //       testMatch = this.matchAcceleratorAndCommand([appCmd], customAccelerators, event)
+    //
+    //     if (testMatch) {
+    //       const
+    //         [testCmd, accel] = testMatch
+    //
+    //
+    //       if (testCmd && (!isInputTarget || testCmd.overrideInput || accel.hasNonInputModifier)) {
+    //         cmd = testCmd
+    //         break
+    //       }
+    //     }
+    //   }
+    // }
 
     if (cmd) {
       cmd.execute(cmd, event)

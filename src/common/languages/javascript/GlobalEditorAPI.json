@@ -1,8 +1,10 @@
 {
   "!name": "epicviz",
-  "npmInstall": {
-    "!url": "https://densebrain/epicviz",
-    "!doc": "Install NPM package",
-    "!type": "fn(name: string)"
+  "pkg": {
+    "!doc": "Package Management for EpicViz",
+    "install": {
+      "!doc": "Install NPM package",
+      "!type": "fn(name: string)"
+    }
   }
 }

@@ -163,11 +163,16 @@
     }
 
     .CodeMirror-selected {
-      background: rgb(33, 33, 33);
+      //background: rgb(33, 33, 33);
+      background: $app-text-selection-background-color;
+
     }
 
     .CodeMirror-selectedtext {
-      background: rgb(84, 84, 83);
+      //background: $app-text-selection-background-color;
+      //color: $app-text-selection-color;
+      color: #FFF !important;
+      //background: rgb(84, 84, 83);
     }
 
     .cm-matchhighlight {

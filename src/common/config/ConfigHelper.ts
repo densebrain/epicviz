@@ -15,8 +15,7 @@ const log = getLogger(__filename)
 let loaded = false
 
 const config:IConfig = {
-	accessToken: null,
-	scope: []
+	maxHistory: 50
 }
 
 function getFilename():string {
@@ -30,7 +29,7 @@ function patchFromDisk():void {
 			.ifLeft(err => log.error("Unable to load config", err))
 			.ifRight(json => updateConfig(JSON.parse(json) as IConfig,false))
 	}
-	
+
 	EventHub.emit("ConfigChanged", config)
 }
 
@@ -38,7 +37,7 @@ function load():void {
 	if (loaded) return
 	loaded = true
 	patchFromDisk()
-	
+
 	const filename = getFilename()
 	Fs.watchFile(filename, {
 		persistent: false,
@@ -66,7 +65,7 @@ export function getConfig():IConfig {
 	if (isMain()) {
 		if (!loaded)
 			load()
-		
+
 		return config
 	} else {
 		return Electron.ipcRenderer.sendSync("getConfig")
@@ -78,7 +77,7 @@ if (isMain()) {
 	Electron.ipcMain.on("getConfig",(event:Electron.Event) => {
 		event.returnValue = getConfig()
 	})
-	
+
 	Electron.ipcMain.on("updateConfig",(event:Electron.Event, patch:Partial<IConfig>) => {
 		event.returnValue = updateConfig(patch)
 	})

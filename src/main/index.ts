@@ -51,7 +51,7 @@ app.on('ready', async () => {
 })
 
 async function getZoomFactor():Promise<number> {
-	return await (new Promise<number>(resolve => resolve(BrowserWindow.getFocusedWindow().webContents.getZoomFactor())))
+	return await (new Promise<number>(resolve => BrowserWindow.getFocusedWindow().webContents.getZoomFactor(resolve)))
 }
 
 const Shortcuts = [

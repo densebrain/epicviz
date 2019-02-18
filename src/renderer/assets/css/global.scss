@@ -5,6 +5,8 @@
 //@import "~codemirror/theme/darcula.css";
 html, body, #app {
 	font-family: "AvenirNext";
+	-webkit-font-feature-settings: 'liga' 1, 'kern' 1;
+	font-feature-settings: 'liga' 1, 'kern' 1;
 	font-weight: 400;
 	font-size: 14px;
 	width: 100vw;

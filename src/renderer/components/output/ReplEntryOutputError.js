@@ -68,8 +68,8 @@ export default class ReplEntryOutputError extends React.Component {
         openBrace = '(';
         closeBrace = ')';
       }
-      const context = ReplContext.getContext();
-      const location = ReplCommon.getModuleSourcePath(p2, context.module.paths);
+      //const context = ReplContext.getContext();
+      //const location = ReplCommon.getModuleSourcePath(p2, context.module.paths);
 
       output.push(
         <div className='repl-entry-output-error-stack-lines' key={output.length}>
@@ -101,11 +101,11 @@ export default class ReplEntryOutputError extends React.Component {
               </span>
             : this.state.collapse
               ? <span className='repl-entry-output-error-message'>
-                  <i className='fa fa-play' onClick={this.onToggleCollapse}></i>
+                  <i className='fa fa-play' onClick={this.onToggleCollapse}/>
                   {this.message}
                 </span>
               : <span className='repl-entry-output-error-message'>
-                  <i className='fa fa-play fa-rotate-90' onClick={this.onToggleCollapse}></i>
+                  <i className='fa fa-play fa-rotate-90' onClick={this.onToggleCollapse}/>
                   {this.message}
                   <span className='repl-entry-output-error-stack' >
                     {this.stacktrace}

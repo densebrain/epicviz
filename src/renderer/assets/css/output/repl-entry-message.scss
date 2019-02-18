@@ -5,7 +5,7 @@
 @import 'repl-source-file';
 
 @mixin replEntryMessage($theme) {
-  .repl-entry-message {
+  .repl-entry-message, * .repl-entry-message {
     @include entryLayout();
 
     &.repl-notebook {
@@ -14,7 +14,7 @@
         padding: 5px 25px 5px 25px;
       }
     }
-    .repl-entry-command-container {
+    .repl-entry-command-container, * .repl-entry-command-container {
       display: flex;
       .tag {
         background-color: if($theme == $dark-theme, $dark-app-tag-bg-color, $lt-app-tag-bg-color);
@@ -63,7 +63,7 @@
       }
     }
 
-    .repl-entry-message-output {
+    .repl-entry-message-output, * .repl-entry-message-output {
       word-wrap: break-word;
       word-break: break-word;
       white-space: pre-wrap;
@@ -90,7 +90,7 @@
         }
       }
 
-      .repl-entry-message-output-function {
+      .repl-entry-message-output-function, * .repl-entry-message-output-function {
         .fa {
           padding-right: 10px;
           padding-top: 4px;
@@ -107,7 +107,7 @@
       }
 
       @include replOutput($theme);
-      .repl-entry-output-error {
+      .repl-entry-output-error, * .repl-entry-output-error {
         .repl-entry-output-error-message {
           .fa-play {
             padding-right: 2px;
