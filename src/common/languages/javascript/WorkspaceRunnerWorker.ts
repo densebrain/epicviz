@@ -9,7 +9,6 @@ import {
   WorkspaceRunStatus
 } from "common/models/Workspace"
 import {isPromise} from "typeguard"
-import {makePackageManagement} from "common/languages/javascript/GlobalEditorAPI"
 import delay from "common/util/Delay"
 import {realRequire} from "common/util/Require"
 import WorkspaceRunner from "common/languages/javascript/WorkspaceRunner"

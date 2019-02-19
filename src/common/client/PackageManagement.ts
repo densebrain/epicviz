@@ -8,7 +8,7 @@ import * as Path from "path"
 
 
 
-export function makePackageManagement(log:ILogger,context:IReplContext, dir: string): any {
+export function makePackageManagement(log:ILogger,context, dir: string): any {
 
   async function npm(cmdArgs:string[] | string):Promise<void> {
     const
@@ -64,7 +64,7 @@ export function makePackageManagement(log:ILogger,context:IReplContext, dir: str
     install
   }
 }
-
-const DummyType = (false as true) && makePackageManagement(null,null,null)
-
-export type PackageManagementType = typeof DummyType
+//
+// const DummyType = (false as true) && makePackageManagement(null,null,null)
+//
+// export type PackageManagementType = typeof DummyType

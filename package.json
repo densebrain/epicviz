@@ -41,7 +41,6 @@
     "jquery": "^3.3.1",
     "jsonrpc-ws-proxy": "^0.0.5",
     "jss": "^9.8.7",
-    "leaflet": "^1.4.0",
     "leaflet-osm": "^0.1.0",
     "lodash": "^4.17.4",
     "lsp-editor-adapter": "^0.0.8",
@@ -164,7 +163,7 @@
     "worker-loader": "https://github.com/jglanz/worker-loader/releases/download/2.0.1/worker-loader-2.0.0.tgz"
   },
   "scripts": {
-    "dev": "electron-webpack dev",
+    "dev": "node node_modules/.bin/electron-webpack dev",
     "compile": "cross-env PACKAGE=true NODE_ENV=development electron-webpack",
     "build:mac": "npm run compile && electron-builder -c.compression=store \"-c.mac.identity=Densebrain, Inc\"",
     "build:linux": "npm run compile && electron-builder -l",

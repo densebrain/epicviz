@@ -3,7 +3,7 @@ import * as Path from "path"
 import * as Fs from "async-file"
 import {shortId} from "common/IdUtil"
 import {IMapPathConfig, MapCoordinateRowType} from "common/client/MapManagementTypes"
-import {getWorkspace} from "renderer/actions/WorkspaceActions"
+
 
 
 const log = getLogger(__filename)
@@ -38,7 +38,7 @@ export interface IOutput<Type = any> {
 export function makeOutput<T extends OutputType>(type:T):IOutput<T> {
   return {
     id: shortId(),
-    name: `Output-${getWorkspace().history.length + 1}`,
+    name: `Output`,
     type,
     dataSets: Array<IDataSet<RowTypes<T>>>()
   }

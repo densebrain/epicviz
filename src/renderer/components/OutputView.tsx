@@ -3,24 +3,27 @@ import getLogger from "common/log/Logger"
 import {Fill, IThemedProperties, NestedStyles, StyleDeclaration} from "renderer/styles/ThemedStyles"
 import {Selectors, StyledComponent} from "renderer/components/elements/StyledComponent"
 import * as classNames from "classnames"
-import {useEffect, useRef} from "react"
+import Tabs from "@material-ui/core/Tabs/Tabs"
+import AppBar from "@material-ui/core/AppBar/AppBar"
+import Tab from "@material-ui/core/Tab/Tab"
+import {useCallback, useState} from "react"
+import {OutputType, Workspace} from "common/models/Workspace"
+import OutputViewMapPath from "renderer/components/OutputViewMapPath"
 
 const log = getLogger(__filename)
 
-type Classes = "root" | "outputView"
+type Classes = "root" | "content"
 
 function baseStyles(theme: Theme): StyleDeclaration<Classes> {
   const
     {palette} = theme,
     {primary, secondary} = palette
-
+  
   return {
     root: {
       ...Fill
     },
-    outputView: {
-      ...Fill
-    }
+    content: {}
   }
 }
 
@@ -29,71 +32,41 @@ interface P extends IThemedProperties<Classes> {
 }
 
 interface SP {
+  workspace:Workspace
 }
 
-const selectors = {} as Selectors<P, SP>
+const selectors = {
+  workspace: (state:IRootRendererState) => state.UIState.workspace
+} as Selectors<P, SP>
+
 
 export default StyledComponent<P, SP>(baseStyles, selectors)(function OutputView(props: SP & P): React.ReactElement<P> {
   const
-    {classes} = props,
-    rootRef = useRef<HTMLDivElement>(null),
-    iframeRef = useRef<HTMLIFrameElement>(null)
-
-  // useEffect(() => {
-  //   if (!rootRef.current || iframeRef.current) return
-  //
-  //   const
-  //     iframe = iframeRef.current = document.createElement("iframe"),
-  //     body = document.createElement("body"),
-  //     content = document.createElement("div")
-  //
-  //   iframe.append(body)
-  //
-  //
-  //
-  //
-  //   /*
-  //   * <iframe
-  //     className={classes.outputView}
-  //     id="output-view"
-  //     name="output-view"
-  //     marginHeight={0}
-  //     marginWidth={0}
-  //     frameBorder="0"
-  //   />
-  //   */
-  //   Object.assign(iframe,{
-  //     id: "output-view",
-  //     className: classes.outputView,
-  //     name: "output-view",
-  //     margin: 0,
-  //     padding: 0,
-  //     frameBorder: 0
-  //   })
-  //
-  //   Object.assign(content,{
-  //     id: "content",
-  //     className: classes.outputView
-  //   })
-  //
-  //   Object.assign(global,{
-  //     outputView: iframe
-  //   })
-  //   rootRef.current.append(iframe)
-  //   iframe.contentDocument.body.append(content)
-  //
-  //   $(content).css({
-  //     ...Fill
-  //   })
-  //
-  //
-  //   Object.assign(iframe.contentWindow,{
-  //     L,
-  //     Plotly
-  //   })
-  // },[rootRef.current])
-
-
-  return <div ref={rootRef} className={classNames(classes.root, {})}/>
-
+    {classes,workspace} = props,
+    [tab,setTab] = useState<number>(-1),
+    output = workspace.outputs[tab]
+  
+  return <div className={classes.root}>
+    <AppBar position="static" color="default">
+      <Tabs
+        value={tab}
+        onChange={(e, tab) => setTab(tab)}
+        indicatorColor="primary"
+        textColor="secondary"
+        scrollButtons="auto"
+      >
+        {workspace.outputs.map((output,index) =>
+          <Tab key={output.id} value={index} label={output.name} />
+        )}
+        
+      </Tabs>
+    </AppBar>
+    <div className={classes.content}>
+      {output && (
+        output.type === "map-path" ?
+          <OutputViewMapPath output={output} /> :
+          null
+      )}
+    </div>
+  </div>
 })

@@ -27,9 +27,9 @@ import {getWorkspace} from "renderer/actions/WorkspaceActions"
 
 
 const
-  log = getLogger(__filename),
+  log = getLogger(__filename)
   //RunWorker = require("!!worker-loader!ts-loader?transpileOnly=true!./run-worker.ts"),
-  GlobalEditorAPI = require("!!raw-loader!./GlobalEditorAPI.ts")
+  //GlobalEditorAPI = require("!!raw-loader!./GlobalEditorAPI.ts")
 
 
 namespace JavaScript {
@@ -68,7 +68,7 @@ namespace JavaScript {
     server = new TernServerClient({
       projectDir,
       files: {
-        "GlobalEditorAPI.ts": GlobalEditorAPI
+      //  "GlobalEditorAPI.ts": GlobalEditorAPI
       },
       getFile: async (name, c) => {
         log.info("Getting file", name)

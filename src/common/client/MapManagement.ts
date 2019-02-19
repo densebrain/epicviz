@@ -1,10 +1,10 @@
-import * as L from "leaflet"
+//import * as L from "leaflet"
 import {ILogger} from "common/log/Logger"
 
-
+const L = require("leaflet")
 
 // eslint-disable-next-line
-export function makeMapManagement(log:ILogger,context:IReplContext) {
+export function makeMapManagement(log:ILogger,context) {
 
   return {
     createMap(options = {} as any) {
@@ -31,7 +31,7 @@ export function makeMapManagement(log:ILogger,context:IReplContext) {
     }
   }
 }
-
-const DummyType = (false as true) && makeMapManagement(null,null)
-
-export type MapManagementType = typeof DummyType
+//
+// const DummyType = (false as true) && makeMapManagement(null,null)
+//
+// export type MapManagementType = typeof DummyType

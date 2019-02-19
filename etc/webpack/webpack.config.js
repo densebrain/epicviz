@@ -8,7 +8,9 @@ const
   modulePath = Path.resolve(rootPath, 'node_modules'),
   sourcePath = Path.resolve(rootPath, 'src'),
   nodeExternals = require('webpack-node-externals'),
-  merge = require("webpack-merge")
+  merge = require("webpack-merge"),
+  ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin')
+
 
 
 function makeConfig(isMain) {
@@ -72,6 +74,9 @@ function makeConfig(isMain) {
       // ENV
       new DefinePlugin(DefinedEnv),
       new Webpack.NamedModulesPlugin(),
+      // new ForkTsCheckerWebpackPlugin({
+      //   maxMemory: 4096
+      // })
     ],
     /**
      * Node Shims
