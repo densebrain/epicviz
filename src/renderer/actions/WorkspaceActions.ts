@@ -1,7 +1,16 @@
 import getLogger from "common/log/Logger"
 import {remote} from "electron"
 import {UIActionFactory} from "renderer/store/actions/UIActionFactory"
-import {IDataSet, IOutput, makeOutput, makeSnippet, OutputType, RowTypes, Workspace} from "common/models/Workspace"
+import {
+  DataConfigTypes,
+  IDataSet,
+  IOutput,
+  makeOutput,
+  makeSnippet,
+  OutputType,
+  RowTypes,
+  Workspace
+} from "common/models/Workspace"
 import JavaScript from "common/languages/javascript/javascript"
 import {getValue, isFunction} from "typeguard"
 import delay from "common/util/Delay"
@@ -97,11 +106,33 @@ export function getWorkspace():Workspace | null {
   return getRendererStoreState().UIState.workspace
 }
 
-export function addOutput<T extends OutputType>(type:T,data:Array<IDataSet<RowTypes<T>>>):IOutput<T> {
+export function addOutput<T extends OutputType = any>(type:T,data:Array<IDataSet<T>>):IOutput<T> {
   const newOutput = makeOutput(type)
+  newOutput.dataSets = data
   patchWorkspace(ws => ({
     ...ws,
     outputs: [...ws.outputs,newOutput]
   }))
   return newOutput
+}
+
+export function removeOutput(idOrIndex:number|string):void {
+  patchWorkspace(ws => ({
+    ...ws,
+    outputs: [...ws.outputs.filter((output,index) => output.id !== idOrIndex && index !== idOrIndex)]
+  }))
+}
+
+Object.assign(global,{
+  addOutput,
+  removeOutput,
+  patchWorkspace,
+  getWorkspace
+})
+
+declare global {
+  function addOutput<T extends OutputType = any>(type:T,data:Array<IDataSet<T>>):IOutput<T>
+  function removeOutput(idOrIndex:number|string):void
+  function patchWorkspace(patch:Partial<Workspace>|((current:Workspace) => Partial<Workspace>)):void
+  function getWorkspace():Workspace | null
 }

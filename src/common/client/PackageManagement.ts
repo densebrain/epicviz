@@ -64,7 +64,7 @@ export function makePackageManagement(log:ILogger,context, dir: string): any {
     install
   }
 }
-//
+
 // const DummyType = (false as true) && makePackageManagement(null,null,null)
 //
 // export type PackageManagementType = typeof DummyType

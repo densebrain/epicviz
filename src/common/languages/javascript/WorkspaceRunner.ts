@@ -12,6 +12,7 @@ import {isPromise} from "typeguard"
 
 import delay from "common/util/Delay"
 import {makeRequireFromPath, realRequire} from "common/util/Require"
+import {makeReplContext} from "common/client/Context"
 //import {makeReplContext} from "common/client/Context"
 //const ctx: Worker = self as any
 const
@@ -69,7 +70,7 @@ namespace WorkspaceRunner {
         ...global,
         require: runRequirePatch,
         console: vmLog,
-        //...makeReplContext(log,dir)
+        ...(await makeReplContext(log,dir))
       }
 
       runContext = createVMContext(context)

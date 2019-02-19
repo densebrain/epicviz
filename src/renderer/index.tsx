@@ -8,8 +8,7 @@ import 'common/util/ErrorHandler'
 import "./assets/fonts/fonts.global.scss"
 import "./assets/css/global.scss"
 import "./assets/css/output/repl.scss"
-//require("leaflet/dist/leaflet.css")
-//$(iframe.contentDocument.head).append($('<link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css" integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA==" crossorigin=""/>'))
+
 // REACT SETUP
 import "./ReactHotConfig"
 import "react-hot-loader/patch"

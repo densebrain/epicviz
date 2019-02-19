@@ -2,7 +2,7 @@ import getLogger from "common/log/Logger"
 import * as Path from "path"
 import * as Fs from "async-file"
 import {shortId} from "common/IdUtil"
-import {IMapPathConfig, MapCoordinateRowType} from "common/client/MapManagementTypes"
+import {IMapPathConfig, MapCoordinateRowType} from "common/models/MapManagementTypes"
 
 
 
@@ -18,21 +18,25 @@ export interface ISnippet {
 
 export type OutputType = "map-path"
 
-export type RowTypes<Type> = Type extends "map-path" ?
+export type RowTypes<Type extends OutputType = any> = Type extends "map-path" ?
   MapCoordinateRowType :
   never
 
-export interface IDataSet<RowType = any> {
-  config: IMapPathConfig
+export type DataConfigTypes<Type extends OutputType = any> = Type extends "map-path" ?
+  IMapPathConfig :
+  never
+
+export interface IDataSet<Type extends OutputType = any> {
+  config: DataConfigTypes<Type>
   columns:Array<string>
-  rows:Array<RowType>
+  rows:Array<RowTypes<Type>>
 }
 
-export interface IOutput<Type = any> {
+export interface IOutput<Type extends OutputType = any> {
   id:string
   name:string
   type:Type
-  dataSets:Array<IDataSet<RowTypes<Type>>>
+  dataSets:Array<IDataSet<Type>>
 }
 
 export function makeOutput<T extends OutputType>(type:T):IOutput<T> {
@@ -40,7 +44,7 @@ export function makeOutput<T extends OutputType>(type:T):IOutput<T> {
     id: shortId(),
     name: `Output`,
     type,
-    dataSets: Array<IDataSet<RowTypes<T>>>()
+    dataSets: Array<IDataSet<T>>()
   }
 }
 

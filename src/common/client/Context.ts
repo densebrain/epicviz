@@ -1,18 +1,28 @@
-import {makeMapManagement} from "common/client/MapManagement"
-import {makePackageManagement} from "common/client/PackageManagement"
 import {ILogger} from "common/log/Logger"
-import {makeOutputManagement} from "common/client/OutputManagement"
 
 
-// eslint-disable-next-line
-export function makeReplContext(log:ILogger,dir:string) {
-  const context = {}
-  
-  Object.assign(context,{
-    maps: makeMapManagement(log,context),
-    pkg: makePackageManagement(log,context,dir),
-    outputs: makeOutputManagement(log,context)
+
+export async function makeReplContext(log: ILogger, dir: string): Promise<any> {
+  const context = {} as any
+
+  Object.assign(context, {
+    maps: (await import("common/client/MapManagement")).makeMapManagement(log, context),
+    pkg: (await import("common/client/PackageManagement")).makePackageManagement(log, context, dir),
+    outputs: (await import("common/client/OutputManagement")).makeOutputManagement(log, context)
   })
-  
+
   return context
 }
+
+
+// declare global {
+//   interface IReplContext {
+//     maps: MapManagementType
+//     pkg: PackageManagementType
+//     outputs: OutputManagementType
+//   }
+//
+//   // interface IReplContext extends ReplContext {
+//   //
+//   // }
+// }

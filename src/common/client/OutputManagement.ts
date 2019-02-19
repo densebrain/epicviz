@@ -1,20 +1,16 @@
 import {ILogger} from "common/log/Logger"
-import {IDataSet, IOutput, OutputType, RowTypes} from "common/models/Workspace"
-import {addOutput} from "renderer/actions/WorkspaceActions"
-
-
-
+import {IDataSet, IOutput, OutputType} from "common/models/Workspace"
 
 // eslint-disable-next-line
-export function makeOutputManagement(log:ILogger,context) {
+export function makeOutputManagement(log:ILogger,context):any {
 
   return {
-    addOutput: <T extends OutputType>(type:T,data:Array<IDataSet<RowTypes<T>>>):IOutput<T> => {
+    addOutput: (type:OutputType,data:Array<IDataSet<any>>):IOutput<any> => {
       return addOutput(type,data)
+    },
+
+    removeOutput: (idOrIndex:string|number):void => {
+      removeOutput(idOrIndex)
     }
   }
 }
-
-// const DummyType = (false as true) && makeOutputManagement(null,null)
-//
-// export type OutputManagementType = typeof DummyType
