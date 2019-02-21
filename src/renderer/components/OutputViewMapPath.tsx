@@ -1,17 +1,12 @@
 import "!!style-loader!css-loader!leaflet/dist/leaflet.css"
 import * as L from 'leaflet'
-//$(iframe.contentDocument.head).append($('<link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css" integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA==" crossorigin=""/>'))
-
 import * as React from "react"
+import {useEffect, useRef, useState} from "react"
 import getLogger from "common/log/Logger"
-import {Fill, IThemedProperties, NestedStyles, StyleDeclaration} from "renderer/styles/ThemedStyles"
+import {Fill, IThemedProperties, StyleDeclaration} from "renderer/styles/ThemedStyles"
 import {Selectors, StyledComponent} from "renderer/components/elements/StyledComponent"
-import * as classNames from "classnames"
-import Tabs from "@material-ui/core/Tabs/Tabs"
-import AppBar from "@material-ui/core/AppBar/AppBar"
-import Tab from "@material-ui/core/Tab/Tab"
-import {useCallback, useEffect, useRef, useState} from "react"
-import {IOutput, OutputType, Workspace} from "common/models/Workspace"
+import {IOutput, Workspace} from "common/models/Workspace"
+//$(iframe.contentDocument.head).append($('<link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css" integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA==" crossorigin=""/>'))
 
 const log = getLogger(__filename)
 
@@ -57,7 +52,7 @@ export default StyledComponent<P, SP>(baseStyles, selectors,{withTheme:true})(fu
 
     const osmUrl='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
     const osmAttrib='Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors';
-    const osm = new L.TileLayer(osmUrl, {minZoom: 4, maxZoom: 20, attribution: osmAttrib});
+    const osm = new L.TileLayer(osmUrl, {minZoom: 4, maxZoom: 19, attribution: osmAttrib});
 
     setMap(() => {
       const map = L.map(mapWrapperRef.current)
@@ -69,11 +64,11 @@ export default StyledComponent<P, SP>(baseStyles, selectors,{withTheme:true})(fu
   },[mapWrapperRef.current])
 
   useEffect(() => {
-    if (!map) return
+    if (!map) return () => {}
 
     const allPoints = Array<L.LatLngTuple>()
-
-    dataSets.forEach(data => {
+    //map.eachLayer(layer => map.remove())
+    const lines = dataSets.map(data => {
       const
         {rows,config:providedConfig} = data,
         config = {
@@ -89,11 +84,25 @@ export default StyledComponent<P, SP>(baseStyles, selectors,{withTheme:true})(fu
       log.info("Points",points)
       const line = new L.Polyline(points,{color: config.color})
       line.addTo(map)
+      return line
+    })
+
+    const markers = allPoints.map(point => {
+      const marker = new L.CircleMarker(point,{
+        color: "#FF0000",
+        fillColor: "#FF0000",
+        radius: 1
+      })
+      marker.addTo(map)
+      return marker
     })
 
     map.fitBounds(allPoints)
     //map.setView(new L.LatLng(config.center[0],config.center[1]), config.zoom)
-
+    return () => {
+      lines.forEach(line => line.removeFrom(map))
+      markers.forEach(marker => marker.removeFrom(map))
+    }
   },[dataSets,map])
 
 

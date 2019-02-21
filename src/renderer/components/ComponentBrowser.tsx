@@ -34,7 +34,7 @@ interface SP {
 
 const selectors = {} as Selectors<P, SP>
 
-type TabValue = "data" | "sources" | "loaders"
+type TabValue = "data" | "sources" | "loaders" | "snippets"
 
 export default StyledComponent<P, SP>(baseStyles, selectors)(function ComponentBrowser(props: SP & P): React.ReactElement<P> {
   const
@@ -53,6 +53,7 @@ export default StyledComponent<P, SP>(baseStyles, selectors)(function ComponentB
         <Tab value="data" label="Data" />
         <Tab value="sources" label="Sources" />
         <Tab value="loaders" label="Loaders" />
+        <Tab value="snippets" label="Snippets" />
       </Tabs>
     </AppBar>
     <div className={classes.content}>

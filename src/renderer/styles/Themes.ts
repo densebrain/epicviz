@@ -45,7 +45,7 @@ const darkPalette = {
 // eslint-disable-next-line
 function makeDarkThemeExt() {
   const
-    {action, primary, secondary, open, closed, pr} = darkPalette,
+    {action, primary, secondary, open, closed, pr, error} = darkPalette,
     focusColor = action.main,
     focusColorText = action.contrastText,
     outlineFocused = `inset 0px 0px 0.1rem 0.1rem ${focusColor}`,
@@ -134,70 +134,12 @@ function makeDarkThemeExt() {
         pane2Bg: primary.dark
       }
     },
-    Milestone = {
-      colors: {
-        bg: darken(primary.dark, 0.6),
-        actionBg: darken(primary.dark, 0.4)
-      }
-    },
-    IssuesLayout = {
+    WorkspaceLayout = {
       colors: {
         bg: darken(primary.dark, 0.7),
         controlsBg: `content-box radial-gradient(${darken(primary.dark, 0.4)}, ${darken(primary.dark, 0.5)})`,//darken(primary.dark,0.4),
         controlsBgHover: darkPalette.action.main
       }
-    },
-    IssueDetails = {
-      colors: {
-        none: darken(primary.contrastText, 0.4),
-        bg: darken(primary.dark, 0.8),
-        commentHeader: primary.contrastText,
-        commentHeaderBg: primary.main,
-        commentBorder: darken(primary.main, 0.8),
-        commentBodyBg: darken(primary.main, 0.3),
-        commentText: primary.contrastText,
-        connection: darken(primary.main, 0.6),
-        focusColor,
-        focusColorText
-      }
-    },
-
-    IssueListItem = {
-      colors: Run(() => {
-        const
-          normal = {
-            bg: `border-box radial-gradient(${darken(primary.dark, 0.4)}, ${darken(primary.dark, 0.5)})`,//darken(primary.dark,0.4),
-            labelScrollFade: darken(primary.dark, 0.4),//`$, ${darken(primary.dark, 0.5)})`,//darken(primary.dark,0.4),
-            metadata: darken(primary.contrastText, 0.7),
-            //updatedAt: darken(primary.contrastText, 0.7),
-            subtitle: darken(primary.contrastText, 0.3),
-            topBg: Transparent,//`border-box radial-gradient(${darken(primary.dark, 0.6)}, ${darken(primary.dark, 0.7)})`,
-            boxShadow: "inset 0 0 0.2rem 0.2rem rgba(10,10,10,0.3)",
-            dividerBoxShadow: "0px 0rem 0.5rem 0.3rem rgba(3, 12, 7, 0.80)",
-            outline: Transparent,
-            text: primary.contrastText,
-            marker: Transparent
-          },
-          // eslint-disable-next-line
-          makeStatusColor = (color: Color) => ({
-            ...normal,
-            bg: `border-box radial-gradient(${color.main}, ${lighten(color.main, 0.2)})`,//darken(primary.dark,0.4),
-            topBg: Transparent,//`border-box radial-gradient(${lighten(color.main, 0.1)}, ${lighten(color.main, 0.3)})`,
-            labelScrollFade: lighten(color.main, 0.1),//`$, ${darken(primary.dark, 0.5)})`,//darken(primary.dark,0.4),
-            metadata: lighten(color.contrastText, 0.7),
-            subtitle: lighten(color.contrastText, 0.3)
-          })
-
-
-        return {
-          normal,
-          open: makeStatusColor(open),
-          closed: makeStatusColor(closed),
-          pr: makeStatusColor(pr)
-        }
-
-      })
-
     },
     Header = {
       colors: {
@@ -207,13 +149,7 @@ function makeDarkThemeExt() {
         boxShadow: "0 0 1rem 0.4rem rgba(10,10,10,0.5)"
       }
     },
-    Labels = {
-      colors: {
-        addBg: darken(primary.dark, 0.6),
-        add: primary.contrastText,
-        text: "#DDB958"
-      }
-    },
+
     Avatar = {
       colors: {
         bg: darken(primary.main, 0.9),
@@ -297,35 +233,7 @@ function makeDarkThemeExt() {
         text: darken(primary.contrastText, 0.3)
       }
     },
-    NotificationListItem = {
-      colors: Run(() => {
-        const normal = {
-            bg: `border-box radial-gradient(${darken(primary.dark, 0.4)}, ${darken(primary.dark, 0.5)})`,//darken(primary.dark,0.4),
-            metadata: darken(primary.contrastText, 0.7),
-            updatedAt: darken(primary.contrastText, 0.7),
-            topBg: Transparent,//`border-box radial-gradient(${darken(primary.dark, 0.6)}, ${darken(primary.dark, 0.7)})`,
-            boxShadow: "inset 0 0 0.2rem 0.2rem rgba(10,10,10,0.3)",
-            dividerBoxShadow: "0px 0rem 0.5rem 0.3rem rgba(3, 12, 7, 0.80)",
-            outline: Transparent,
-            text: primary.contrastText,
-            marker: Transparent
-          },
-          makeStatusColor = (color: Color): (typeof normal) => ({
-            ...normal,
-            bg: `border-box radial-gradient(${color.main}, ${lighten(color.main, 0.2)})`,//darken(primary.dark,0.4),
-            topBg: Transparent,//`border-box radial-gradient(${lighten(color.main, 0.1)}, ${lighten(color.main, 0.3)})`,
-            //labelScrollFade: lighten(color.main, 0.1),//`$, ${darken(primary.dark, 0.5)})`,//darken(primary.dark,0.4),
-            metadata: lighten(color.contrastText, 0.7)
-            //subtitle: lighten(color.contrastText, 0.3)
-          })
 
-
-        return {
-          normal,
-          selected: makeStatusColor(action)
-        }
-      }) //as {[color in NotificationListItemColor]:string}
-    },
     ListItem = {
       colors: Run(() => {
         const normal = {
@@ -352,6 +260,12 @@ function makeDarkThemeExt() {
           selected: makeStatusColor(action)
         } as {[state:string]: {[code in ListItemColor]: CSSColor}}
       })
+    },
+    OutputViewErrorBoundary = {
+      colors: {
+        bg: primary.main,
+        text: error.main
+      }
     }
 
   return {
@@ -393,12 +307,9 @@ function makeDarkThemeExt() {
       Input,
       Select,
       SplitPane,
-      Milestone,
-      IssuesLayout,
-      IssueListItem,
-      IssueDetails,
       Header,
-      Labels,
+      OutputViewErrorBoundary,
+      WorkspaceLayout,
       Avatar,
       Chip,
       Button,
@@ -410,7 +321,6 @@ function makeDarkThemeExt() {
       BlockingWorkProgress,
       MenuList,
       SearchProvider,
-      NotificationListItem,
       ListItem
     },
 

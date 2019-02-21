@@ -24,7 +24,7 @@ function makeConfig(isMain) {
   function makeExternals() {
     const whitelist = [
       /webpack/,
-      /codemirror/,
+      /codemirror.*\.css$/,
       /highlight\.js/,
       /octokit/,
       /hot/,
@@ -63,6 +63,7 @@ function makeConfig(isMain) {
         main: Path.resolve(rootPath, 'src', 'main'),
         test: Path.resolve(rootPath, 'src', 'test'),
         'node-fetch': "common/Fetch",
+        "context.json": Path.resolve(rootPath,'dist','out','common','context','context.json'),
         //'react-dom': '@hot-loader/react-dom',
         renderer: Path.resolve(rootPath, 'src', 'renderer')
 

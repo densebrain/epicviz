@@ -1,4 +1,5 @@
 import getLogger from "common/log/Logger"
+import {getValue, isString} from "typeguard"
 
 const Worker = require("!!worker-loader!ts-loader?transpileOnly=true!./worker.ts")
 //!!worker-loader?inline=true!
@@ -110,9 +111,9 @@ CM.TernServer.prototype = {
   },
 
   hideDoc: function (id) {
-    closeArgHints(this);
+    closeArgHints(this)
     const found = resolveDoc(this, id)
-    if (found && found.changed) sendDoc(this, found);
+    if (found && found.changed) sendDoc(this, found)
   },
 
   complete: function (cm) {
@@ -256,29 +257,33 @@ function hint(ts, cm, c) {
         text: completion.name + after,
         displayText: completion.displayName || completion.name,
         className: className,
-        data: completion
+        data: {...completion,from,to}
       });
     }
+
 
     const obj = {from: from, to: to, list: completions}
     let tooltip = null
     CM.on(obj, "close", function () {
-      remove(tooltip);
-    });
+      log.info("On close")
+      remove(tooltip)
+    })
     CM.on(obj, "update", function () {
-      remove(tooltip);
-    });
+      remove(tooltip)
+    })
     CM.on(obj, "select", function (cur, node) {
-      remove(tooltip);
-      const content = ts.options.completionTip ? ts.options.completionTip(cur.data) : cur.data.doc
+      remove(tooltip)
+      const content = getValue(() => ts.options.completionTip ? ts.options.completionTip(cur.data) : cur.data.doc,null)
       if (content) {
-        tooltip = makeTooltip(node.parentNode.getBoundingClientRect().right + window.pageXOffset,
-          node.getBoundingClientRect().top + window.pageYOffset, content);
-        tooltip.className += " " + cls + "hint-doc";
+        tooltip = makeTooltip(
+          node.parentNode.getBoundingClientRect().right + window.pageXOffset,
+          node.getBoundingClientRect().top + window.pageYOffset, content
+        )
+        tooltip.className += " " + cls + "hint-doc"
       }
-    });
-    c(obj);
-  });
+    })
+    c(obj)
+  })
 }
 
 function typeToIcon(type) {
@@ -715,10 +720,25 @@ function onEditorActivity(cm, f) {
 }
 
 function makeTooltip(x, y, content) {
-  const node = elt("div", cls + "tooltip", content)
+  const node = elt("div", cls + "tooltip")
+  if (isString(content))
+    node.innerHTML = content
+  else
+    node.append(content)
+  //node.style.maxWidth = x + "px";
+
   node.style.left = x + "px";
-  node.style.top = y + "px";
-  document.body.appendChild(node);
+  node.style.bottom = (window.document.body.clientHeight - y) + "px";
+  document.body.appendChild(node)
+
+  const
+    jNode = $(node),
+    inset = jNode.outerHeight(true) - jNode.height(),
+    height = (inset + $('.tooltip-value').outerHeight(true))
+
+  node.style.height = height + 'px'
+
+  log.info("Height",$('.tooltip-value').height(),inset,height)
   return node;
 }
 

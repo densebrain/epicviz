@@ -62,6 +62,7 @@ async function renderRoot():Promise<void> {
   await require("./init").default
   await require('common/watchers/ConfigWatcher').default
   require('renderer/watchers/WorkspaceWatcher')
+  await require("./Commands").default()
 
 
   doRender()

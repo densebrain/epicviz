@@ -3,7 +3,8 @@ import * as Path from "path"
 import * as Fs from "async-file"
 import {shortId} from "common/IdUtil"
 import {IMapPathConfig, MapCoordinateRowType} from "common/models/MapManagementTypes"
-
+import * as _ from 'lodash'
+import {Plot2DConfig, Plot2DRowType} from "common/models/PlotManagementTypes"
 
 
 const log = getLogger(__filename)
@@ -16,14 +17,16 @@ export interface ISnippet {
   output:any[]
 }
 
-export type OutputType = "map-path"
+export type OutputType = "map-path" | "plot-2d"
 
-export type RowTypes<Type extends OutputType = any> = Type extends "map-path" ?
-  MapCoordinateRowType :
-  never
+export type RowTypes<Type extends OutputType = any> =
+  Type extends "map-path" ? MapCoordinateRowType :
+  Type extends "plot-2d" ? Plot2DRowType :
+    never
 
-export type DataConfigTypes<Type extends OutputType = any> = Type extends "map-path" ?
-  IMapPathConfig :
+export type DataConfigTypes<Type extends OutputType = any> =
+  Type extends "map-path" ? IMapPathConfig :
+  Type extends "plot-2d" ? Plot2DConfig :
   never
 
 export interface IDataSet<Type extends OutputType = any> {
@@ -39,10 +42,10 @@ export interface IOutput<Type extends OutputType = any> {
   dataSets:Array<IDataSet<Type>>
 }
 
-export function makeOutput<T extends OutputType>(type:T):IOutput<T> {
+export function makeOutput<T extends OutputType>(name:string,type:T):IOutput<T> {
   return {
     id: shortId(),
-    name: `Output`,
+    name,
     type,
     dataSets: Array<IDataSet<T>>()
   }
@@ -63,6 +66,8 @@ export class Workspace {
   history = Array<ISnippet>()
 
   snippet:ISnippet = makeSnippet()
+
+  savedSnippets = Array<ISnippet>()
 
   filename:string
 
@@ -137,6 +142,10 @@ export interface IWorkspaceRunRequest {
 }
 
 export type WorkspaceRunResponseType = "result" | "output"
+
+export interface IWorkspaceRunner {
+  executeRunRequest(dir: string, command: WorkspaceRunCommand, payload?: ISnippet | null, onOutput?: ((output: any[]) => void) | null): Promise<IWorkspaceRunResponseResult>
+}
 
 export interface IWorkspaceRunResponseResult {
   status: WorkspaceRunStatus

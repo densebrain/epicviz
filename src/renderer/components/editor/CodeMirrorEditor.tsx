@@ -1,15 +1,37 @@
 import * as CodeMirror from 'codemirror'
-//import 'codemirror/mode/javascript/javascript'
-import JavaScript from "common/languages/javascript"
+import 'codemirror/mode/javascript/javascript'
+import 'codemirror/mode/css/css'
 import 'codemirror/lib/codemirror.css'
-import 'codemirror/addon/tern/tern.css'
-import 'codemirror/theme/darcula.css'
-import 'codemirror/addon/dialog/dialog.css'
-import 'codemirror/addon/dialog/dialog'
 import 'codemirror/addon/hint/show-hint.css'
 import 'codemirror/addon/hint/show-hint'
+import 'codemirror/addon/selection/active-line'
 import 'codemirror/addon/selection/mark-selection'
+//import 'codemirror/addon/comment/comment'
+//import 'codemirror/addon/comment/continuecomment'
+import 'codemirror/addon/display/placeholder'
+//import 'codemirror/addon/display/autorefresh'
+import 'codemirror/addon/edit/matchtags'
+import 'codemirror/addon/edit/closebrackets'
+// import 'codemirror/addon/runmode/runmode'
+// import 'codemirror/addon/runmode/runmode.node'
+// import 'codemirror/addon/runmode/colorize'
+//import 'codemirror/addon/selection/active-line'
+//import 'codemirror/addon/selection/mark-selection'
+import 'codemirror/addon/lint/lint'
+import 'codemirror/addon/lint/javascript-lint'
+import 'codemirror/addon/lint/json-lint'
+import 'codemirror/addon/fold/foldgutter'
+import 'codemirror/addon/fold/foldgutter.css'
+import 'codemirror/addon/fold/indent-fold'
+import 'codemirror/addon/fold/brace-fold'
+import 'codemirror/addon/dialog/dialog.css'
+import 'codemirror/addon/dialog/dialog'
+import 'codemirror/addon/hint/anyword-hint'
+import 'codemirror/addon/hint/javascript-hint'
+import "renderer/assets/css/darcula.css"
+import "renderer/assets/css/tern.css"
 
+import JavaScript from "common/languages/javascript"
 
 import * as React from "react"
 import getLogger from "common/log/Logger"
@@ -19,7 +41,7 @@ import {
   rem,
   FillWidth, makePaddingRem, mergeClasses, makePadding, PositionAbsolute, Fill, StyleDeclaration, OverflowAuto, remToPx
 } from "renderer/styles/ThemedStyles"
-
+import classNames from 'classnames'
 import {StyledComponent} from "renderer/components/elements/StyledComponent"
 import {useCallback, useEffect, useRef, useState} from "react"
 import {guard} from "typeguard"
@@ -28,6 +50,10 @@ import {lighten} from "@material-ui/core/styles/colorManipulator"
 import * as Path from "path"
 import * as Fs from "fs"
 import {stopEvent} from "renderer/util/Event"
+
+Object.assign(global,{
+  CodeMirror
+})
 
 const
   Sh = require("shelljs"),
@@ -79,6 +105,13 @@ function baseStyles(theme: Theme): StyleDeclaration {
         "&, & *": {
           fontFamily: "FiraCode",
           fontSize: rem(1.1)
+        },
+        "& .CodeMirror-cursors": {
+          visibility: 'visible',
+
+          "&.CodeMirror-cursorsVisible": {
+            visibility: 'visible !important'
+          }
         },
         "&.CodeMirror-focused::after": [theme.focus, PositionAbsolute, Fill, {
           top: 0,
@@ -175,12 +208,12 @@ export default StyledComponent<P>(baseStyles,{withTheme:true})(function CodeMirr
     dir = isNewFile ? null : Path.dirname(filePath)
 
 
-  useEffect(() => {
+  useEffect(():void => {
     const
       container = textareaRef.current,
       wrapper = wrapperRef.current
 
-    if (!filePath || !dir || !wrapper || codeMirrorRef.current) return () => {}
+    if (!filePath || !dir || !wrapper || codeMirrorRef.current) return
 
     const
       doc = new CodeMirror.Doc(value || "","javascript"),
@@ -197,6 +230,20 @@ export default StyledComponent<P>(baseStyles,{withTheme:true})(function CodeMirr
 
     const server = JavaScript.attach(dir,newEditor)
     server.addDoc(filePath,doc)
+
+    let cursorInterval:any = null
+    const toggleCursor = (clear:boolean = false):void => {
+      const cursors = $(".CodeMirror-cursors")
+      cursors.css({
+        visibility: clear ? null : cursors.css('visibility') === 'visible' ? 'hidden' : 'visible'
+      })
+    }
+
+    newEditor.on('blur', () => (cursorInterval = setInterval(toggleCursor,500)))
+    newEditor.on('focus', () => {
+      cursorInterval && clearInterval(cursorInterval)
+      toggleCursor(true)
+    })
 
     newEditor.on("viewportChange", editor => {
       const
@@ -225,8 +272,6 @@ export default StyledComponent<P>(baseStyles,{withTheme:true})(function CodeMirr
       onChangedInternal(newEditor.getValue())
     })
 
-
-
     setEditor(newEditor)
     setServer(server)
 
@@ -236,15 +281,15 @@ export default StyledComponent<P>(baseStyles,{withTheme:true})(function CodeMirr
       })
     }
 
-    return () => {
-      if (DEBUG) {
-        Object.assign(global, {
-          editor: null
-        })
-      }
-
-      server.destroy()
-    }
+    // return () => {
+    //   if (DEBUG) {
+    //     Object.assign(global, {
+    //       editor: null
+    //     })
+    //   }
+    //
+    //   //server.destroy()
+    // }
   }, [filePath, wrapperRef, textareaRef])
 
   useEffect(() => {
@@ -254,7 +299,9 @@ export default StyledComponent<P>(baseStyles,{withTheme:true})(function CodeMirr
   },[filePath])
 
   return <div
-    ref={wrapperRef} className={mergeClasses(classes.root, className)}
+    ref={wrapperRef}
+    className={classNames(`${classes.root} cm-s-darcula ${className}`)}
+    {...other}
   />
 })
 

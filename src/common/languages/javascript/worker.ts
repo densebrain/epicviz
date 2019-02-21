@@ -43,7 +43,11 @@ const defs = [
   workerRequire("tern/defs/browser.json"),
   // // @ts-ignore
   workerRequire("tern/defs/ecmascript.json"),
-  require("./GlobalEditorAPI.json")
+  {
+    ...require("context.json"),
+    ...require("./GlobalEditorAPI.json")
+  }
+
   // // @ts-ignore
   // workerRequire("tern/defs/underscore")
 ]

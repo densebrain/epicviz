@@ -1,0 +1,8 @@
+{
+  "extends": "./tsconfig.json",
+  "include": [
+    "src/common/context/*.ts",
+    "src/renderer/actions/WorkspaceActions.ts",
+    "src/renderer/index.tsx"
+  ]
+}

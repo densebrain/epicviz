@@ -1,5 +1,5 @@
 {
-  "compilerOptions": {
+"compilerOptions": {
     "lib": ["esnext","dom","dom.iterable"],
     "target": "es2017",
     "module": "commonjs",
@@ -22,7 +22,9 @@
         "*"
       ]
     }
+
   },
+  "compileOnSave": true,
   "include": [
     "src/**/*.ts",
     "src/**/*.tsx"

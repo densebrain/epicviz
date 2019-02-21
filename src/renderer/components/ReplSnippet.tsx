@@ -4,9 +4,9 @@ import {
   FillWidth,
   FlexAuto, FlexColumn, FlexRow,
   FlexRowCenter, FlexScale,
-  IThemedProperties, makeMargin, makePadding,
+  IThemedProperties, makeDimensionConstraints, makeMargin, makePadding,
   makePaddingRem, makeWidthConstraint,
-  NestedStyles, OverflowHidden, rem,
+  NestedStyles, OverflowHidden, rem, remToPx,
   StyleDeclaration
 } from "renderer/styles/ThemedStyles"
 import {Selectors, StyledComponent} from "renderer/components/elements/StyledComponent"
@@ -17,6 +17,12 @@ import ReplCommon from "./output/ReplCommon"
 import ReplOutputTranspile from "./output/ReplOutputTranspile"
 import {getValue, isString} from "typeguard"
 import Paper from "@material-ui/core/Paper/Paper"
+import {darken} from "@material-ui/core/styles/colorManipulator"
+import IconButton from "@material-ui/core/IconButton/IconButton"
+import ReplayIcon from "@material-ui/icons/Replay"
+import EditIcon from "@material-ui/icons/Edit"
+import BookmarkIcon from "@material-ui/icons/Bookmark"
+import {runWorkspace, saveSnippet, setCurrentSnippet} from "renderer/actions/WorkspaceActions"
 
 const log = getLogger(__filename)
 
@@ -50,7 +56,37 @@ function baseStyles(theme: Theme): StyleDeclaration<Classes> {
 
       "& .top": {
         ...FlexAuto,
-        background: primary["700"]
+        ...FlexRowCenter,
+        background: primary["700"],
+
+        "& > .entry": {
+          ...FlexScale,
+          overflowX: 'auto',
+
+          "& > .source": {
+            overflowWrap: "normal !important",
+            wordBreak: 'keep-all !important',
+
+            "& > pre": {
+              ...makeMargin(0)
+            }
+          }
+        },
+        "& > .controls": {
+          ...FlexAuto,
+          ...makePadding(0,0,0,remToPx(1)),
+
+          "& .button": {
+            ...makeDimensionConstraints(rem(1.4)),
+            ...makePaddingRem(0.2),
+            ...FlexAuto,
+            "& .icon": {
+              ...makeDimensionConstraints(rem(1)),
+              fontSize: rem(1),
+              color: darken(primary.contrastText,0.15)
+            }
+          }
+        }
       },
       "& .bottom": {
         ...FlexColumn,
@@ -61,7 +97,9 @@ function baseStyles(theme: Theme): StyleDeclaration<Classes> {
           ...FlexRow,
           ...FlexAuto,
           ...makePaddingRem(0.25, 0),
-
+          "&.expired": {
+            color: darken(primary.contrastText,0.3)
+          },
           "& > .level": {
             ...FlexAuto,
             ...makeWidthConstraint(rem(5)),
@@ -105,16 +143,30 @@ export default StyledComponent<P>(baseStyles)(function ReplSnippet(props: P): Re
   return <div className={classNames(`${classes.root} repl-snippet`, {})}>
     <Paper className={classes.paper}>
       <div className="top repl-entry-message">
-        <div className='repl-entry-command-container'>
-          <div className='repl-entry-message-output'
-               dangerouslySetInnerHTML={{__html: ReplCommon.highlight(snippet.code, 'js')}}/>
-
+        <div className='entry repl-entry-command-container'>
+          <div className='source repl-entry-message-output'
+               >
+            <pre dangerouslySetInnerHTML={{__html: ReplCommon.highlight(snippet.code, 'js')}} />
+          </div>
           {/*<ReplOutputTranspile output={snippet.code} html={ReplCommon.highlight(snippet.code,'js')} />*/}
           {/*<div className="repl-entry-message-command" dangerouslySetInnerHTML={{__html:ReplCommon.highlight(snippet.code)}}/>*/}
         </div>
+        <div className="controls">
+          <IconButton className="button" onClick={() => setCurrentSnippet(snippet)}>
+            <EditIcon className="icon"/>
+          </IconButton>
+          <IconButton className="button" onClick={() => runWorkspace(getWorkspace(), snippet)}>
+            <ReplayIcon className="icon"/>
+          </IconButton>
+          <IconButton className="button" onClick={() => saveSnippet(snippet)}>
+            <BookmarkIcon className="icon"/>
+          </IconButton>
+        </div>
       </div>
       <div className="bottom repl-entry-message">
-
+        {snippet.output.isEmpty() && <div className="repl-entry-message-output output expired">
+          output has expired
+        </div>}
         {snippet.output.map((output, index) => {
           let level = (output && output.stack ? LogLevel.error : LogLevel.info) as any
           let tag = "REPL"

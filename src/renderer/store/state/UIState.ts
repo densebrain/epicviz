@@ -41,6 +41,7 @@ export class UIState implements ILoadableState {
   }
 
   async load(): Promise<void> {
+    log.info("Loading workspace from",this.projectDir)
     if (!this.projectDir.isEmpty()) {
       try {
         this.workspace = await Workspace.load(this.projectDir)

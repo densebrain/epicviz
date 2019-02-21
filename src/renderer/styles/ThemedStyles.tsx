@@ -312,7 +312,7 @@ export function makeBorderRem(top = 0, right = top, bottom = top, left = right):
 }
 
 
-export function makeMargin(top:string|number = 0, right = top, bottom = top, left = right):StyleDeclaration {
+export function makeMargin(top:string|number = 0, right = top, bottom = top, left = right):CSSProperties {
   return {
     marginTop: top,
     marginRight: right,
@@ -321,7 +321,7 @@ export function makeMargin(top:string|number = 0, right = top, bottom = top, lef
   } as any
 }
 
-export function makeMarginRem(top = 0, right = top, bottom = top, left = right):StyleDeclaration {
+export function makeMarginRem(top = 0, right = top, bottom = top, left = right):CSSProperties {
 	return makeMargin(rem(top),rem(right),rem(bottom),rem(left))
 }
 
@@ -341,7 +341,7 @@ export const FlexAuto = makeFlex(0,0,'auto')
  * @param flexShrink
  * @param flexBasis
  */
-export function makeFlex(flexGrow = 1, flexShrink = 1, flexBasis:number|string = 0):StyleDeclaration {
+export function makeFlex(flexGrow = 1, flexShrink = 1, flexBasis:number|string = 0):CSSProperties {
 	return {
 		flexGrow,
 		flexShrink,
@@ -393,7 +393,7 @@ export const FlexColumnReverse = makeStyle(Flex,{
 
 export const FlexColumnCenter = makeStyle(FlexColumn,FlexAlignCenter)
 
-export function makeStyle(...styles):NestedStyles {
+export function makeStyle(...styles):CSSProperties {
 
 	return Object.assign({},...styles.reduce((allStyles,style) => {
 		if (Array.isArray(style)) {

@@ -1,7 +1,7 @@
 import getLogger from "common/log/Logger"
 import {isPromise} from "typeguard"
 import * as moment from "moment"
-import {IThemedProperties} from "renderer/styles/ThemedStyles"
+import {FlexAuto, FlexColumnCenter, IThemedProperties, makePaddingRem} from "renderer/styles/ThemedStyles"
 import * as React from "react"
 import {UIActionFactory} from "renderer/store/actions/UIActionFactory"
 import Deferred from "common/Deferred"
@@ -13,6 +13,7 @@ import Typography from "@material-ui/core/Typography/Typography"
 import {AppActionFactory} from "common/store/actions/AppActionFactory"
 import {makeBlockingWork} from "common/util/AppStatusHelper"
 import * as _ from 'lodash'
+import TextField from "renderer/components/elements/TextField"
 const log = getLogger(__filename)
 
 
@@ -73,6 +74,42 @@ export function GithubDate(props:GithubDateProps):React.ReactElement<Partial<Git
   const {component = "span", timestamp, ...other} = props
 
   return React.createElement(component, other,uiGithubDate(timestamp))
+}
+
+export async function inputTextDialog(content:string, title:string, label:string, defaultValue:string = ""):Promise<string | null> {
+  const
+    actions = new UIActionFactory(),
+    deferred = new Deferred<string | null>(),
+    holder = {
+      text: defaultValue
+    }
+
+
+  actions.showDialog({
+    id: shortId(),
+    type: "TextInput",
+    variant: "xs",
+    deferred,
+    title,
+    content: (props:IDialogProps<string | null>) =>
+      <div className={props.dialogClasses.textContent} style={FlexColumnCenter}>
+        <Typography variant="h4">{content}</Typography>
+        <div style={{...FlexAuto,...makePaddingRem(1.5,0,0,0)}}>
+          <TextField defaultValue={holder.text} onChange={(event:React.ChangeEvent<HTMLInputElement>) => {
+            holder.text = event.target.value
+          }}/>
+        </div>
+      </div>,
+    actions: (props:IDialogProps<string | null>) => <SimpleDialogActions
+      onComplete={notCancelled => props.onDialogComplete(!notCancelled ? null : holder.text)}
+      classes={props.dialogClasses}
+      dialog={props.dialog}
+      actionLabel="Save"
+    />,
+    defaultResult: null
+  })
+
+  return await deferred.promise
 }
 
 export async function confirmDialog(content:string, title:string = "Confirm"):Promise<boolean> {

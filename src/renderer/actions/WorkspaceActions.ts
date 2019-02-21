@@ -4,7 +4,7 @@ import {UIActionFactory} from "renderer/store/actions/UIActionFactory"
 import {
   DataConfigTypes,
   IDataSet,
-  IOutput,
+  IOutput, ISnippet,
   makeOutput,
   makeSnippet,
   OutputType,
@@ -13,7 +13,9 @@ import {
 } from "common/models/Workspace"
 import JavaScript from "common/languages/javascript/javascript"
 import {getValue, isFunction} from "typeguard"
-import delay from "common/util/Delay"
+
+import {shortId} from "common/IdUtil"
+import {inputTextDialog} from "renderer/util/UIHelper"
 
 const log = getLogger(__filename)
 
@@ -47,21 +49,43 @@ export function patchWorkspace(patch:Partial<Workspace>|((current:Workspace) => 
   new UIActionFactory().patchWorkspace(isFunction(patch) ? patch(getWorkspace()) : patch)
 }
 
-export async function runWorkspace(workspace:Workspace):Promise<void> {
-  let {snippet} = getWorkspace()
+export async function runWorkspace(workspace:Workspace, snippet:ISnippet | null = null):Promise<void> {
+  const snippetProvided = Boolean(snippet)
+  if (!snippet) {
+    snippet = getWorkspace().snippet
+  }
+
   const {id} = snippet
   snippet = {
     ...snippet,
     output: []
   }
 
+  const
+    ws = getWorkspace(),
+    patch = {
 
-  patchWorkspace(ws => ({
-    history: [...ws.history.slice(Math.max(0,ws.history.length - 50),ws.history.length), snippet],
-    snippet: makeSnippet()
-  }))
+    } as Partial<Workspace>
 
-  //await delay(50)
+  if (!snippetProvided) {
+    Object.assign(patch,{
+      history: [...ws.history.slice(Math.max(0,ws.history.length - 50),ws.history.length), snippet],
+      snippet: makeSnippet()
+    })
+  } else {
+    const
+      newHistory = [...ws.history],
+      snippetIndex = newHistory.findIndex(it => it.id === id)
+
+    if (snippetIndex === -1)
+      throw Error(`Unable to find snippet with id: ${id}`)
+
+    newHistory[snippetIndex] = snippet
+    Object.assign(patch,{
+      history: newHistory
+    })
+  }
+  patchWorkspace(patch)
 
   const updateOutput = (output:any[]):void => {
     patchWorkspace(current => {
@@ -106,8 +130,8 @@ export function getWorkspace():Workspace | null {
   return getRendererStoreState().UIState.workspace
 }
 
-export function addOutput<T extends OutputType = any>(type:T,data:Array<IDataSet<T>>):IOutput<T> {
-  const newOutput = makeOutput(type)
+export function addOutput<T extends OutputType = any>(name:string,type:T,data:Array<IDataSet<T>>):IOutput<T> {
+  const newOutput = makeOutput(name,type)
   newOutput.dataSets = data
   patchWorkspace(ws => ({
     ...ws,
@@ -116,11 +140,43 @@ export function addOutput<T extends OutputType = any>(type:T,data:Array<IDataSet
   return newOutput
 }
 
-export function removeOutput(idOrIndex:number|string):void {
+export async function saveSnippet(snippet:ISnippet):Promise<void> {
+  const name = await inputTextDialog("Choose a name for your snippet","Set Name","")
+
+  if (!name) return
+
+  patchWorkspace(ws => ({
+    savedSnippets: [...ws.savedSnippets,{...snippet,id: shortId(),name}]
+  }))
+}
+
+export function setCurrentSnippet(snippet:ISnippet):void {
+  patchWorkspace({
+    snippet: {
+      ...snippet,
+      id: shortId(),
+      output: []
+    }
+  })
+  focusRepl()
+}
+
+export function removeSnippet(idOrIndexOrName:number|string):void {
   patchWorkspace(ws => ({
     ...ws,
-    outputs: [...ws.outputs.filter((output,index) => output.id !== idOrIndex && index !== idOrIndex)]
+    savedSnippets: [...ws.savedSnippets.filter((snippet,index) => snippet.name !== idOrIndexOrName && snippet.id !== idOrIndexOrName && index !== idOrIndexOrName)]
   }))
+}
+
+export function removeOutput(idOrIndexOrName:number|string):void {
+  patchWorkspace(ws => ({
+    ...ws,
+    outputs: [...ws.outputs.filter((output,index) => output.name !== idOrIndexOrName && output.id !== idOrIndexOrName && index !== idOrIndexOrName)]
+  }))
+}
+
+export function focusRepl():void {
+  $(`#repl-input input, #repl-input textarea`).focus()
 }
 
 Object.assign(global,{
@@ -131,7 +187,7 @@ Object.assign(global,{
 })
 
 declare global {
-  function addOutput<T extends OutputType = any>(type:T,data:Array<IDataSet<T>>):IOutput<T>
+  function addOutput<T extends OutputType = any>(name:string, type:T,data:Array<IDataSet<T>>):IOutput<T>
   function removeOutput(idOrIndex:number|string):void
   function patchWorkspace(patch:Partial<Workspace>|((current:Workspace) => Partial<Workspace>)):void
   function getWorkspace():Workspace | null

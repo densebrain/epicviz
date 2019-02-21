@@ -41,7 +41,7 @@ const log = getLogger(__filename)
 
 function baseStyles(theme: Theme): any {
   const
-    {palette, components: {IssuesLayout}} = theme,
+    {palette, components: {WorkspaceLayout}} = theme,
     {action, notifications, primary, secondary, background} = palette
 
   return {
@@ -54,7 +54,7 @@ function baseStyles(theme: Theme): any {
         "& .repo": {
           ...makePaddingRem(0, 1),
           borderRadius: rem(0.5),
-          background: IssuesLayout.colors.bg
+          background: WorkspaceLayout.colors.bg
         },
         "& .button": {
           ...makeMarginRem(2),
@@ -72,14 +72,14 @@ function baseStyles(theme: Theme): any {
       ...FlexRowCenter,
       ...FlexAuto,
       ...PositionRelative,
-      background: IssuesLayout.colors.controlsBg,
+      background: WorkspaceLayout.colors.controlsBg,
       "& img, & .notificationsButton": {
         ...makeDimensionConstraints(rem(2)),
         ...makePaddingRem(0)
       },
       "&:hover, &.open": {
         ...CursorPointer,
-        background: IssuesLayout.colors.controlsBgHover
+        background: WorkspaceLayout.colors.controlsBgHover
       },
       "& .notificationsButton": {
         ...PositionRelative,
@@ -153,7 +153,7 @@ export default StyledComponent<P, SP>(baseStyles, selectors)(function (props: P 
   }, [])
 
 
-  return <div
+  return projectDir.isEmpty() ? null : <div
     ref={rootRef}
     className={classes.root}
     tabIndex={-1}

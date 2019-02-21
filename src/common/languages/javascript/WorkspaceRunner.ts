@@ -12,7 +12,7 @@ import {isPromise} from "typeguard"
 
 import delay from "common/util/Delay"
 import {makeRequireFromPath, realRequire} from "common/util/Require"
-import {makeReplContext} from "common/client/Context"
+import {makeReplContext} from "common/context/Context"
 //import {makeReplContext} from "common/client/Context"
 //const ctx: Worker = self as any
 const
@@ -42,6 +42,40 @@ namespace WorkspaceRunner {
   let runContext:VMContext | null = null
   let dir:string | null = null
 
+  export async function getContext(newDir:string):Promise<(VMContext & any) | null> {
+    if (newDir !== dir || !runRequire || !runContext) {
+      dir = newDir
+
+      runRequire = makeRequireFromPath(
+        Path.resolve(dir, "node_modules")
+      )
+      runRequirePatch = ((...args) => {
+        //log.info("monkey patch require",...args)
+        return (runRequire as any)(...args)
+      }) as any
+
+      Object.assign(runRequirePatch,runRequire)
+      const Sh = require("shelljs")
+      Sh.cd(dir)
+      const context = {
+        ...global,
+        require: runRequirePatch,
+        console: vmLog,
+        ...Sh,
+        ...(await makeReplContext(log,dir))
+      }
+
+      runContext = createVMContext(context)
+
+      if (DEBUG) {
+        Object.assign(global,{
+          runContext
+        })
+      }
+    }
+    return runContext
+  }
+
   export function addLogEventListener(listener:LogEventListener):void {
     vmLog.on(listener)
     log.on(listener)
@@ -53,28 +87,7 @@ namespace WorkspaceRunner {
   }
 
   async function init(data:IWorkspaceRunRequest, result:IWorkspaceRunResponseResult):Promise<IWorkspaceRunResponseResult> {
-    if (data.dir !== dir || !runRequire || !runContext) {
-      dir = data.dir
-
-      runRequire = makeRequireFromPath(
-        Path.resolve(dir, "node_modules")
-      )
-      runRequirePatch = ((...args) => {
-        log.info("monkey patch require",...args)
-        return (runRequire as any)(...args)
-      }) as any
-
-      Object.assign(runRequirePatch,runRequire)
-
-      const context = {
-        ...global,
-        require: runRequirePatch,
-        console: vmLog,
-        ...(await makeReplContext(log,dir))
-      }
-
-      runContext = createVMContext(context)
-    }
+    await getContext(data.dir)
     result.status = WorkspaceRunStatus.Success
     return result
   }

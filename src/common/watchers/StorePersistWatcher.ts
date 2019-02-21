@@ -105,15 +105,14 @@ async function setupRendererPersistenceLeaf<S extends State<string>>(
   factoryConstructor:IActionFactoryBaseConstructor<S>,
   stateConstructor:IStateConstructor<string,S>
 ):Promise<void> {
-  const leafState = stateConstructor.fromJS(
-  	JSON.parse(
-  		localStorage.getItem(stateConstructor.Key) || "{}"
-		)
+  const jsonState = localStorage.getItem(stateConstructor.Key) || "{}"
+	const leafState = stateConstructor.fromJS(
+  	JSON.parse(jsonState)
 	) as S
 
 	if (isLoadableState(leafState)) {
 		await leafState.load()
-	}
+  }
 
 	const factory = new factoryConstructor()
   factory.setState(leafState)

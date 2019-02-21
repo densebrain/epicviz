@@ -1,4 +1,5 @@
 ///<reference path="sugar-extended.d.ts"/>
+///<reference path="plotly.d.ts"/>
 
 declare module "*.png" {
 	const content: any;
@@ -21,6 +22,6 @@ declare module "worker-loader!*" {
 	class WebpackWorker extends Worker {
 		constructor();
 	}
-	
+
 	export default WebpackWorker;
 }

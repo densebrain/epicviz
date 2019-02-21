@@ -1,10 +1,19 @@
 {
-  "!name": "epicviz",
+  "maps": {
+    "!doc": "Map Management for EpicViz",
+    "!type": "!modules.MapManagement`js.makeMapManagement.!ret"
+  },
+  "plot": {
+    "!doc": "Plot Management for EpicViz",
+    "!type": "!modules.PlotManagement`js.makePlotManagement.!ret"
+  },
+
+  "outputs": {
+    "!doc": "Output Management for EpicViz",
+    "!type": "!modules.OutputManagement`js.makeOutputManagement.!ret"
+  },
   "pkg": {
     "!doc": "Package Management for EpicViz",
-    "install": {
-      "!doc": "Install NPM package",
-      "!type": "fn(name: string)"
-    }
+    "!type": "!modules.PackageManagement`js.makePackageManagement.!ret"
   }
 }

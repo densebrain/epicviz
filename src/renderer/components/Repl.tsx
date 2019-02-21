@@ -24,10 +24,11 @@ import EventHub from "common/events/Event"
 import {areDialogsOpen} from "renderer/util/UIHelper"
 import {useRef} from "react"
 import CommonElementIds from "renderer/CommonElements"
-import {getWorkspace, runWorkspace} from "renderer/actions/WorkspaceActions"
+import {focusRepl, getWorkspace, runWorkspace} from "renderer/actions/WorkspaceActions"
 import ReplSnippet from "renderer/components/ReplSnippet"
 import ResizeAware from 'react-resize-aware'
 import {darken, lighten} from "@material-ui/core/styles/colorManipulator"
+import EventListener, {withOptions} from 'react-event-listener'
 
 const log = getLogger(__filename)
 
@@ -120,6 +121,10 @@ export default StyledComponent<P, SP>(baseStyles, selectors,{
     tabIndex={-1}
     {...commandManagerProps}
   >
+    <EventListener
+      target="window"
+      onFocus={focusRepl}
+    />
 
     <div ref={historyRef} className={classes.history}>
       <ResizeAware
@@ -134,6 +139,7 @@ export default StyledComponent<P, SP>(baseStyles, selectors,{
       </ResizeAware>
     </div>
     <CodeMirrorEditor
+      id="repl-input"
       autoFocus
       file={!projectDir ? null : Path.resolve(projectDir, `${workspace.snippet.id}.js`)}
       value={workspace.snippet.code}

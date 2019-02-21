@@ -45,7 +45,7 @@ type SearchProviderFieldClasses = "root" | "input" |
 
 function baseStyles(theme: Theme): StyleDeclaration<SearchProviderFieldClasses> {
   const
-    {palette, components: {Select, MenuList, Labels, Input, SearchProvider}, spacing: {unit}} = theme,
+    {palette, components: {Select, MenuList, Input, SearchProvider}, spacing: {unit}} = theme,
     {primary, secondary} = palette,
     rowElementHeight = remToPx(2)
 
@@ -319,11 +319,11 @@ type ChipClasses = "root" | "key" | "value"
 
 function chipBaseStyles(theme: Theme): StyleRules<ChipClasses> {
   const
-    {components: {Labels}} = theme,
+    {action} = theme.palette,
     colorGetter = (fn: (color: string) => string): ((props: ChipP) => string) =>
       (props: ChipP) => getValue(() => fn(
         props.chip.type === "text" ?
-          Labels.colors.text :
+          action.main :
           props.chip.color
         )
       )
