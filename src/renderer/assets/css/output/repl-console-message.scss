@@ -102,6 +102,7 @@
           .repl-entry-output-error-message {
             .fa-play {
               color: if($theme == $dark-theme, $dark-app-entry-message-output-arr-fold-color, $lt-app-entry-message-output-arr-fold-color);
+              min-width: 1.5rem
             }
             .repl-entry-output-error-message-heading {
               padding-left: 5px;

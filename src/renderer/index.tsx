@@ -34,7 +34,7 @@ import "renderer/store/UIAppStoreTypes"
 // SUGAR EXTEND GLOBAL
 require("sugar").extend()
 
-document.body.classList.add("dark-theme","cm-s-dark-theme")
+document.body.classList.add("dark-theme","cm-s-dark-theme","cm-s-darcula")
 
 const appEl = $("#app")
 

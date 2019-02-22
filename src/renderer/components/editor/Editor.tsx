@@ -28,28 +28,31 @@ import 'codemirror/addon/dialog/dialog.css'
 import 'codemirror/addon/dialog/dialog'
 import 'codemirror/addon/hint/anyword-hint'
 import 'codemirror/addon/hint/javascript-hint'
-import "renderer/assets/css/darcula.css"
+import "renderer/assets/css/darcula.scss"
 import "renderer/assets/css/tern.css"
 
 import JavaScript from "common/languages/javascript"
 
 import * as React from "react"
+import {useCallback, useEffect, useRef, useState} from "react"
 import getLogger from "common/log/Logger"
 import {
+  Fill,
+  FillWidth,
   IThemedProperties,
-  NestedStyles,
+  makePadding,
+  OverflowAuto,
+  PositionAbsolute,
   rem,
-  FillWidth, makePaddingRem, mergeClasses, makePadding, PositionAbsolute, Fill, StyleDeclaration, OverflowAuto, remToPx
+  StyleDeclaration
 } from "renderer/styles/ThemedStyles"
 import classNames from 'classnames'
 import {StyledComponent} from "renderer/components/elements/StyledComponent"
-import {useCallback, useEffect, useRef, useState} from "react"
 import {guard} from "typeguard"
-import {getCommandManager} from "common/command-manager"
 import {lighten} from "@material-ui/core/styles/colorManipulator"
 import * as Path from "path"
-import * as Fs from "fs"
-import {stopEvent} from "renderer/util/Event"
+import attachHistory from "renderer/components/editor/Editor.History"
+import attachInput from "renderer/components/editor/Editor.Input"
 
 Object.assign(global,{
   CodeMirror
@@ -189,9 +192,9 @@ function getEditorSizes():EditorSizes {
 
 }
 
-export default StyledComponent<P>(baseStyles,{withTheme:true})(function CodeMirrorEditor(props: P): React.ReactElement<P> {
+export default StyledComponent<P>(baseStyles,{withTheme:true})(function Editor(props: P): React.ReactElement<P> {
   const
-    {value, theme,classes, language = "javascript", file,className, onValueChange, autoFocus = false, ...other} = props,
+    {value, theme,classes, language = "javascript", file:inFile,className, onValueChange, autoFocus = false, ...other} = props,
     wrapperRef = useRef<HTMLDivElement | null>(null),
     textareaRef = useRef<HTMLTextAreaElement | null>(null),
     codeMirrorRef = useRef<CodeMirror.Editor | null>(null),
@@ -203,9 +206,9 @@ export default StyledComponent<P>(baseStyles,{withTheme:true})(function CodeMirr
     }, [onValueChange])
 
   const
-    isNewFile = !file ? true : file.isEmpty(),
-    filePath = isNewFile ? null : Path.resolve(file),
-    dir = isNewFile ? null : Path.dirname(filePath)
+    isNewFile = !inFile ? true : inFile.isEmpty(),
+    file = isNewFile ? null : Path.resolve(inFile),
+    dir = isNewFile ? null : Path.dirname(file)
 
 
   useEffect(():void => {
@@ -213,7 +216,7 @@ export default StyledComponent<P>(baseStyles,{withTheme:true})(function CodeMirr
       container = textareaRef.current,
       wrapper = wrapperRef.current
 
-    if (!filePath || !dir || !wrapper || codeMirrorRef.current) return
+    if (!file || !dir || !wrapper || codeMirrorRef.current) return
 
     const
       doc = new CodeMirror.Doc(value || "","javascript"),
@@ -228,8 +231,10 @@ export default StyledComponent<P>(baseStyles,{withTheme:true})(function CodeMirr
       } as any)
 
 
-    const server = JavaScript.attach(dir,newEditor)
-    server.addDoc(filePath,doc)
+    const server = JavaScript.attach(dir,file,newEditor,doc)
+    attachHistory(newEditor)
+    attachInput(newEditor)
+
 
     let cursorInterval:any = null
     const toggleCursor = (clear:boolean = false):void => {
@@ -280,27 +285,17 @@ export default StyledComponent<P>(baseStyles,{withTheme:true})(function CodeMirr
         editor: newEditor
       })
     }
-
-    // return () => {
-    //   if (DEBUG) {
-    //     Object.assign(global, {
-    //       editor: null
-    //     })
-    //   }
-    //
-    //   //server.destroy()
-    // }
-  }, [filePath, wrapperRef, textareaRef])
+  }, [file, wrapperRef, textareaRef])
 
   useEffect(() => {
     if (codeMirrorRef.current) {
       codeMirrorRef.current.setValue(value)
     }
-  },[filePath])
-
+  },[file])
+  //cm-s-darcula
   return <div
     ref={wrapperRef}
-    className={classNames(`${classes.root} cm-s-darcula ${className}`)}
+    className={classNames(`${classes.root} ${className}`)}
     {...other}
   />
 })

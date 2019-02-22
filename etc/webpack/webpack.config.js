@@ -52,7 +52,8 @@ function makeConfig(isMain) {
   const config = {
     devtool: "source-map",
     output: {
-      devtoolModuleFilenameTemplate: "file://[absolute-resource-path]",
+      //devtoolModuleFilenameTemplate: "file://[absolute-resource-path]",
+      devtoolModuleFilenameTemplate: "epic://[absolute-resource-path]",
       globalObject: "this"
     },
     resolve: {

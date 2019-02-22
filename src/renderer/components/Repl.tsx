@@ -1,33 +1,30 @@
 import * as React from "react"
+import {useCallback, useEffect, useRef, useState} from "react"
 import getLogger from "common/log/Logger"
 import {
-  Fill, FillWidth,
-  FlexColumn, FlexScale,
+  Fill,
+  FillWidth,
+  FlexColumn,
+  FlexScale,
   IThemedProperties,
-  NestedStyles,
   OverflowAuto,
   StyleDeclaration
 } from "renderer/styles/ThemedStyles"
 import {Selectors, StyledComponent} from "renderer/components/elements/StyledComponent"
 import * as classNames from "classnames"
 import * as Path from "path"
-import CodeMirrorEditor from "renderer/components/editor/CodeMirrorEditor"
+import Editor from "renderer/components/editor/Editor"
 import {StringMap} from "common/Types"
 import {Workspace} from "common/models/Workspace"
 import {projectDirSelector} from "renderer/store/selectors/UISelectors"
-import {useCallback, useEffect, useLayoutEffect, useState} from "react"
 import {UIActionFactory} from "renderer/store/actions/UIActionFactory"
 import {useCommandManager} from "renderer/command-manager-ui"
-import {CommandContainerBuilder, CommandType, ICommandContainerItems} from "common/command-manager"
+import {CommandContainerBuilder, ICommandContainerItems} from "common/command-manager"
 import {guard} from "typeguard"
-import EventHub from "common/events/Event"
-import {areDialogsOpen} from "renderer/util/UIHelper"
-import {useRef} from "react"
 import CommonElementIds from "renderer/CommonElements"
 import {focusRepl, getWorkspace, runWorkspace} from "renderer/actions/WorkspaceActions"
 import ReplSnippet from "renderer/components/ReplSnippet"
 import ResizeAware from 'react-resize-aware'
-import {darken, lighten} from "@material-ui/core/styles/colorManipulator"
 import EventListener, {withOptions} from 'react-event-listener'
 
 const log = getLogger(__filename)
@@ -68,9 +65,7 @@ const selectors = {
   workspace: (state:IRootRendererState) => state.UIState.workspace
 } as Selectors<P, SP>
 
-export default StyledComponent<P, SP>(baseStyles, selectors,{
-
-})(function Repl(props: SP & P): React.ReactElement<P> {
+export default StyledComponent<P, SP>(baseStyles, selectors)(function Repl(props: SP & P): React.ReactElement<P> {
   const
     {classes,workspace,projectDir} = props,
     [historyHeight,setHistoryHeight] = useState<number>(0),
@@ -109,7 +104,7 @@ export default StyledComponent<P, SP>(baseStyles, selectors,{
 
   // AUTO SCROLL
   useEffect(() => {
-    log.info("history height",historyHeight,scrollAuto)
+    //log.info("history height",historyHeight,scrollAuto)
     if (!historyRef.current || !scrollAuto || !historyHeight) return
     const historyContent = document.getElementById("history")
     historyRef.current.scrollTo(0,historyContent.scrollHeight)
@@ -138,7 +133,7 @@ export default StyledComponent<P, SP>(baseStyles, selectors,{
         )}
       </ResizeAware>
     </div>
-    <CodeMirrorEditor
+    <Editor
       id="repl-input"
       autoFocus
       file={!projectDir ? null : Path.resolve(projectDir, `${workspace.snippet.id}.js`)}

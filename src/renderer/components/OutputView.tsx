@@ -4,8 +4,8 @@ import {
   Fill, FillWidth,
   FlexColumn, FlexColumnCenter,
   FlexScale,
-  IThemedProperties,
-  NestedStyles, PositionRelative,
+  IThemedProperties, makeDimensionConstraints, makeHeightConstraint,
+  NestedStyles, OverflowAuto, PositionRelative,
   StyleDeclaration
 } from "renderer/styles/ThemedStyles"
 import {Selectors, StyledComponent} from "renderer/components/elements/StyledComponent"
@@ -21,7 +21,7 @@ import ReplOutput from "./output/ReplOutput"
 
 const log = getLogger(__filename)
 
-type Classes = "root" | "content" | "errorWrapper"
+type Classes = "root" | "content" | "errorWrapper" | "error"
 
 function baseStyles(theme: Theme): StyleDeclaration<Classes> {
   const
@@ -44,8 +44,15 @@ function baseStyles(theme: Theme): StyleDeclaration<Classes> {
       ...FlexColumnCenter,
       ...Fill,
       ...FillWidth,
+      ...PositionRelative,
       backgroundColor: error.colors.bg,
       color: error.colors.text
+    },
+    error: {
+      ...FlexScale,
+      ...makeDimensionConstraints("94%"),
+      ...OverflowAuto,
+      wordWrap: 'nowrap'
     }
   }
 }
@@ -97,7 +104,7 @@ export default StyledComponent<P, SP>(baseStyles, selectors)(function OutputView
 
       </Tabs>
     </AppBar>
-    <div className={classes.content}>
+    <div className={`${classes.content} repl-snippet`}>
       {/* WRAPPED IN ERROR BOUNDARY IN CASE BAD DATA IS PROVIDED*/}
       <OutputViewErrorBoundary ref={errorRef} classes={classes}>
         {output && (
@@ -133,8 +140,10 @@ class OutputViewErrorBoundary extends React.Component<IErrorProps,IErrorState> {
   }
 
   static renderError({classes}:IErrorProps, error: Error, errorInfo: React.ErrorInfo): React.ReactNode {
-    return <div className={classes.errorWrapper}>
-      {ReplOutput.transformObject(error)}
+    return <div className={`${classes.errorWrapper} repl-entry-message`}>
+      <div className={`${classes.error} repl-entry-message-output output`}>
+        <pre className="repl-entry-command-container">{ReplOutput.transformObject(error)}</pre>
+      </div>
     </div>
   }
 

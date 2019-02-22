@@ -140,7 +140,7 @@ interface P extends IThemedProperties<Classes> {
 
 export default StyledComponent<P>(baseStyles)(function ReplSnippet(props: P): React.ReactElement<P> {
   const {snippet, classes} = props
-  return <div className={classNames(`${classes.root} repl-snippet`, {})}>
+  return <div className={classNames(`${classes.root} repl-snippet CodeMirror`, {})}>
     <Paper className={classes.paper}>
       <div className="top repl-entry-message">
         <div className='entry repl-entry-command-container'>

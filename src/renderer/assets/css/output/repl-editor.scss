@@ -181,5 +181,9 @@
 
     .CodeMirror-activeline-background { background: rgba(158, 158, 158, 0.13); }
     .CodeMirror-matchingbracket { font-weight: bolder; color:#E0075E !important; }
+
+    .CodeMirror-scroll {
+      margin-right: 0px;
+    }
   }
 }
