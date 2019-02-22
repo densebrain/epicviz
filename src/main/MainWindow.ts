@@ -82,7 +82,7 @@ export async function checkMainWindow():Promise<BrowserWindow> {
 	})
 
   if (process.env.devToolsOpen) {
-    mainWindow.webContents.openDevTools()
+    //mainWindow.webContents.openDevTools()
   }
 
 	log.info("Loading URL and returning",url)

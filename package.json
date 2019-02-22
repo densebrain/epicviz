@@ -59,6 +59,7 @@
     "react-event-listener": "^0.6.5",
     "react-highlight-words": "^0.15.1",
     "react-hot-loader": "^4.6.3",
+    "react-modal": "^3.8.1",
     "react-moment": "^0.8.4",
     "react-redux": "^6.0.0",
     "react-resize-aware": "^2.7.2",
@@ -165,7 +166,8 @@
     "worker-loader": "https://github.com/jglanz/worker-loader/releases/download/2.0.1/worker-loader-2.0.0.tgz"
   },
   "scripts": {
-    "dev": "concurrently \"node node_modules/.bin/electron-webpack dev\" \"npm run defs:watch\"",
+    "dev:electron": "ELECTRON_ARGS=\"[\\\"--remote-debugging-port=9223\\\",\\\"--inspect\\\"]\" node node_modules/.bin/electron-webpack dev",
+    "dev": "concurrently -n \"dev:electron,defs:watch\"",
     "compile": "npm run make-tern-defs && ross-env PACKAGE=true NODE_ENV=development electron-webpack",
     "build:mac": "npm run compile && electron-builder -c.compression=store \"-c.mac.identity=Densebrain, Inc\"",
     "build:linux": "npm run compile && electron-builder -l",
@@ -178,7 +180,7 @@
     "release": "npm version patch && npm run publish:mac && npm run publish:linux && npm run publish:win",
     "storybook": "start-storybook -p 9001 -c .storybook",
     "postinstall": "rm -Rf $(find node_modules/@types/*/node_modules -name react)",
-    "defs:compile": "tsc -p tsconfig.json && pushd dist/out/common/context && ../../../../node_modules/tern/bin/condense --name context --plugin modules --no-spans --plugin commonjs --plugin node --plugin node_resolve *Management.js > context.json && popd",
+    "defs:compile": "tsc -p tsconfig.json && cd dist/out/common/context && ../../../../node_modules/tern/bin/condense --name context --plugin modules --no-spans --plugin commonjs --plugin node --plugin node_resolve *Management.js > context.json && cd ../../../../",
     "defs:watch": "node ./etc/scripts/context-generation.js"
   },
   "build": {

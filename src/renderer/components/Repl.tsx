@@ -86,7 +86,7 @@ export default StyledComponent<P, SP>(baseStyles, selectors,{
       useCallback((builder: CommandContainerBuilder): ICommandContainerItems => {
         return builder
           .command(
-            "Enter",
+            "CommandOrControl+Enter",
             (cmd, event) => guard(() => {
               log.info("Repl - enter pressed, execute")
               runWorkspace(getWorkspace())

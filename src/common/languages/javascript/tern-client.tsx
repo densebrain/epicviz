@@ -1,6 +1,8 @@
 import getLogger from "common/log/Logger"
 import {getValue, isString} from "typeguard"
-
+import * as React from 'react'
+import * as ReactDOM from 'react-dom'
+import TernTooltip from "./TernTooltip"
 const Worker = require("!!worker-loader!ts-loader?transpileOnly=true!./worker.ts")
 //!!worker-loader?inline=true!
 
@@ -721,24 +723,25 @@ function onEditorActivity(cm, f) {
 
 function makeTooltip(x, y, content) {
   const node = elt("div", cls + "tooltip")
-  if (isString(content))
-    node.innerHTML = content
-  else
-    node.append(content)
+  // if (isString(content))
+  //   node.innerHTML = content
+  // else
+  //   node.append(content)
   //node.style.maxWidth = x + "px";
 
   node.style.left = x + "px";
   node.style.bottom = (window.document.body.clientHeight - y) + "px";
   document.body.appendChild(node)
+  
+  ReactDOM.render(<TernTooltip>{content}</TernTooltip>,node)
+  // const
+  //   jNode = $(node),
+  //   inset = jNode.outerHeight(true) - jNode.height(),
+  //   height = (inset + $('.tooltip-value').outerHeight(true))
 
-  const
-    jNode = $(node),
-    inset = jNode.outerHeight(true) - jNode.height(),
-    height = (inset + $('.tooltip-value').outerHeight(true))
+  // node.style.height = height + 'px'
 
-  node.style.height = height + 'px'
-
-  log.info("Height",$('.tooltip-value').height(),inset,height)
+  // log.info("Height",$('.tooltip-value').height(),inset,height)
   return node;
 }
 

@@ -20,6 +20,8 @@ log.info("Starting")
 
 // DISABLE WEB-SECURITY
 app.commandLine.appendSwitch('disable-web-security')
+// app.commandLine.appendSwitch('remote-debugging-port','9223')
+// app.commandLine.appendSwitch('inspect')
 //app.commandLine.append('js-flags',"--experimental-modules")
 // Quit application when all windows are closed
 app.on('window-all-closed', () => {
