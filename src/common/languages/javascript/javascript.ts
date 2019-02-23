@@ -18,6 +18,7 @@ import WorkspaceRunner from "common/languages/javascript/WorkspaceRunner"
 import * as JSONTruncate from 'json-truncate'
 import ReplOutput from "renderer/components/output/ReplOutput"
 import * as React from 'react'
+import * as prettier from 'prettier'
 
 const
   log = getLogger(__filename)
@@ -191,6 +192,43 @@ namespace JavaScript {
       },
       epicShowCompletions: (editor:CodeMirror.Editor) => {
         showCompletions(editor)
+      },
+      epicFormat:(editor:CodeMirror.Editor) => {
+        try {
+          let offset = 0
+          const value = editor.getValue()
+          const cursor = (editor as any).getCursor()
+          for (let i = 0; i < cursor.line; i++) {
+            offset = value.indexOf("\n", offset) + 1
+          }
+          offset += cursor.ch
+          log.info("Index of cursor", offset, value[offset])
+
+          const
+            result = prettier.formatWithCursor(";(" + value + ")", {
+              cursorOffset: offset + 2,
+              parser: "babel",
+              semi: false,
+              tabWidth: 2,
+              useTabs: false
+            }),
+            {formatted} = result,
+            newValue = formatted.substring(2,formatted.length - 1)
+
+          editor.setValue(newValue)
+
+          const
+            newOffset = result.cursorOffset - 2,
+            newValueToCursor = newValue.substring(0,newOffset),
+            lines = newValueToCursor.split("\n"),
+            line = lines.length - 1,
+            lastBreakIndex = newValueToCursor.lastIndexOf("\n") + 1,
+            ch = newOffset - lastBreakIndex
+
+          editor.getDoc().setCursor({line,ch})
+        } catch (err) {
+          log.error("Unable to format code", err)
+        }
       }
     }
 

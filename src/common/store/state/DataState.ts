@@ -20,8 +20,6 @@ export class DataState implements State<string> {
 
 	type = DataState.Key
 
-	notifications: IDataSet<INotification> = makeDataSet()
-
 	constructor(o:any = {}) {
 		Object.assign(this,o)
 	}

@@ -1,27 +1,28 @@
 import * as React from "react"
 import getLogger from "common/log/Logger"
 import {
-  Ellipsis,
-  FillHeight,
-  FillWidth,
-  FlexAuto,
-  FlexRowCenter,
-  FlexScale,
-  IThemedProperties,
-  makeDimensionConstraints,
-  makeHeightConstraint,
-  makeTransition, makeWidthConstraint,
-  mergeClasses,
-  OverflowHidden,
-  PositionAbsolute,
-  PositionRelative,
-  rem,
-  StyleDeclaration
+	Ellipsis, Fill,
+	FillHeight,
+	FillWidth,
+	FlexAuto,
+	FlexRowCenter,
+	FlexScale,
+	IThemedProperties,
+	makeDimensionConstraints,
+	makeHeightConstraint,
+	makeTransition, makeWidthConstraint,
+	mergeClasses,
+	OverflowHidden,
+	PositionAbsolute,
+	PositionRelative,
+	rem,
+	StyleDeclaration
 } from "renderer/styles/ThemedStyles"
 import {WindowControls} from "renderer/components/elements/WindowControls"
 import {remote} from "electron"
 import {StyledComponent} from "renderer/components/elements/StyledComponent"
 import {projectDirSelector} from "renderer/store/selectors/UISelectors"
+import {elevationStyles} from "renderer/components/elements/Elevation"
 
 
 const log = getLogger(__filename)
@@ -40,9 +41,23 @@ function baseStyles(theme:Theme):StyleDeclaration<Classes> {
 			...FillWidth,
 			...FlexRowCenter,
 			...PositionRelative,
-			...OverflowHidden,
+			//...OverflowHidden,
+			position: 'fixed',
+			zIndex: 2,
+			top: 0,
+			left: 0,
 			background: Header.colors.bg,
 			boxShadow: Header.colors.boxShadow,
+
+			// "&::after": {
+			// 	content: "' '",
+			// 	...PositionAbsolute,
+			// 	...Fill,
+			// 	top: "100%",
+			// 	left: 0,
+			// 	...elevationStyles.elevation6
+			// },
+
 			"& > .left, & > .right": {
 				...FlexRowCenter,
 				...FillHeight,

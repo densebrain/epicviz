@@ -88,3 +88,6 @@ export interface IDataSyncStatus {
 	type: DataType
 	records: {[id:number]:IDataSyncRecord}
 }
+
+
+export type LiteralMap<K extends string,V> = {[key in K]:V}

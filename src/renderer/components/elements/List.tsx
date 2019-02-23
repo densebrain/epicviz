@@ -41,6 +41,7 @@ function baseStyles(theme): any {
 
 export type ListRowProps<T = any> = VListRowProps & {
   dataSet: IDataSet<T>
+  multi?: boolean
   selectedIndexesContext: React.Context<Array<number>>,
   onClick: () => void
 }
@@ -65,6 +66,7 @@ export default StyledComponent<P<any>>(baseStyles)(function List<T = any>(props:
     rootRef = useRef<HTMLDivElement>(null),
     {
       id,
+      multi = false,
       selectable = true,
       dataSet, classes,
       selectedIndexes,
@@ -129,7 +131,7 @@ export default StyledComponent<P<any>>(baseStyles)(function List<T = any>(props:
         start = increment > 0 ? _.max([...selectedIndexes, 0]) : Math.max(_.min(selectedIndexes), 0),
         dest = Math.min(Math.max(0, start + increment), Math.max(dataSet.total - 1, 0))
 
-      if (!shiftHeld) {
+      if (!shiftHeld || !multi) {
         setSelectedIndexes([dest])
       } else {
         const

@@ -13,10 +13,10 @@ import {
   IThemedProperties,
   makeDimensionConstraints,
   makeHeightConstraint,
-  makeMarginRem,
+  makeMarginRem, makePadding,
   makePaddingRem,
   PositionRelative,
-  rem
+  rem, remToPx, StyleDeclaration
 } from "renderer/styles/ThemedStyles"
 import {VerticalSplitPane} from "renderer/components/elements/VerticalSplitPane"
 import {AppActionFactory} from "common/store/actions/AppActionFactory"
@@ -27,19 +27,22 @@ import {StyledComponent} from "renderer/components/elements/StyledComponent"
 import CommonElementIds from "renderer/CommonElements"
 import {UIActionFactory} from "renderer/store/actions/UIActionFactory"
 import {StringMap} from "common/Types"
-import {projectDirSelector} from "renderer/store/selectors/UISelectors"
+import {makeSplitterSelector, projectDirSelector} from "renderer/store/selectors/UISelectors"
 import {Workspace} from "common/models/Workspace"
 import Repl from "renderer/components/Repl"
 import {openWorkspaceFolder} from "renderer/actions/WorkspaceActions"
 import {HorizontalSplitPane} from "renderer/components/elements/HorizontalSplitPane"
 import ComponentBrowser from "renderer/components/ComponentBrowser"
 import OutputView from "renderer/components/OutputView"
+import {UISplitterNames} from "renderer/store/state/UIState"
 
 const AvatarDefaultURL = require("renderer/assets/images/avatar-default.png")
 
 const log = getLogger(__filename)
 
-function baseStyles(theme: Theme): any {
+type Classes = "root" | "container"
+
+function baseStyles(theme: Theme): StyleDeclaration<Classes> {
   const
     {palette, components: {WorkspaceLayout}} = theme,
     {action, notifications, primary, secondary, background} = palette
@@ -48,74 +51,25 @@ function baseStyles(theme: Theme): any {
     root: {
       ...Fill,
       ...FlexColumnCenter,
+      ...makePadding(remToPx(2),0,0,0),
       background: theme.background.global,
-
-      "& .enable": {
-        "& .repo": {
-          ...makePaddingRem(0, 1),
-          borderRadius: rem(0.5),
-          background: WorkspaceLayout.colors.bg
-        },
-        "& .button": {
-          ...makeMarginRem(2),
-          "& .icon": {
-            ...makeDimensionConstraints(rem(4)),
-            fontSize: rem(6)
-          }
-        }
-      }
     },
-    header: {
-      ...FlexAuto
-    },
-    controls: {
-      ...FlexRowCenter,
-      ...FlexAuto,
-      ...PositionRelative,
-      background: WorkspaceLayout.colors.controlsBg,
-      "& img, & .notificationsButton": {
-        ...makeDimensionConstraints(rem(2)),
-        ...makePaddingRem(0)
-      },
-      "&:hover, &.open": {
-        ...CursorPointer,
-        background: WorkspaceLayout.colors.controlsBgHover
-      },
-      "& .notificationsButton": {
-        ...PositionRelative,
-        ...makeHeightConstraint(rem(2)),
-        borderRadius: 0,
-        "&.unread": {
-          backgroundColor: notifications.main,
-          "& svg": {
-            fontSize: rem(0.6)
-          }
-        },
-        "& svg": {
-          fontSize: rem(1)
-        },
-        "& .badge": {
-          //...makePaddingRem(0.2,0.3)
-        }
-      }
-    },
-    content: {...FlexScale, ...FlexColumnCenter, ...PositionRelative, ...Fill, ...FillWidth},
     container: {...PositionRelative, ...FlexScale, ...FillWidth}
   }
 }
 
-interface P extends IThemedProperties {
+interface P extends IThemedProperties<Classes> {
 
 }
 
 interface SP {
-  splitters: StringMap<number | string>
+  splitter: number | string
   projectDir: string
   workspace: Workspace | null
 }
 
 const selectors = {
-  splitters: (state: IRootRendererState) => state.UIState.splitters,
+  splitter: makeSplitterSelector("repl"),
   projectDir: projectDirSelector,
   workspace: (state: IRootRendererState) => state.UIState.workspace
 }
@@ -125,7 +79,7 @@ const uiActions = new UIActionFactory()
 
 export default StyledComponent<P, SP>(baseStyles, selectors)(function (props: P & SP): React.ReactElement<P & SP> {
   const
-    {classes, splitters, workspace, projectDir} = props,
+    {classes, splitter, workspace, projectDir} = props,
     rootRef = useRef<any>(null),
     containerRef = useRef<any>(null),
     id = CommonElementIds.App,
@@ -148,8 +102,8 @@ export default StyledComponent<P, SP>(baseStyles, selectors)(function (props: P 
   }, [projectDir])
 
 
-  const onSplitterChange = useCallback((splitterId: string) => (newSize: number): void => {
-    uiActions.setSplitter(splitterId, newSize)
+  const onSplitterChange = useCallback((newSize: number): void => {
+    uiActions.setSplitter("repl", newSize)
   }, [])
 
 
@@ -163,13 +117,15 @@ export default StyledComponent<P, SP>(baseStyles, selectors)(function (props: P 
     <div className={classes.container}>
       {workspace &&
       <VerticalSplitPane
-        defaultSize={"50%"}
+        defaultSize={splitter}
         primary="first"
+        onChanged={onSplitterChange}
       >
         <Repl/>
         <div>
           <HorizontalSplitPane
             defaultSize={"50%"}
+            maxSize="70%"
             primary="first"
           >
             <ComponentBrowser/>

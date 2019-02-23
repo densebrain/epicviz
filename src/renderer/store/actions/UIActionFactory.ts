@@ -1,6 +1,6 @@
 import {ActionFactory, ActionReducer, ActionMessage, patchState} from "typedux"
 import getLogger from "common/log/Logger"
-import {UIState} from "../state/UIState"
+import {UISplitterNames, UIState, UITabNames} from "../state/UIState"
 import {getValue} from "typeguard"
 import {DialogDefaults, IDialog} from "renderer/models/Dialog"
 import {getCommandManager} from "common/command-manager"
@@ -96,19 +96,21 @@ export class UIActionFactory extends ActionFactory<UIState, ActionMessage<UIStat
 
 
   @ActionReducer()
-  setNotificationsOpen(notificationsOpen:boolean) {
-    return (state:UIState) =>
-      patchState(state, {
-        notificationsOpen
-      })
-  }
-
-  @ActionReducer()
-  setSplitter(name:string, size: number | string) {
+  setSplitter(name:UISplitterNames, size: number | string) {
     return (state: UIState) => patchState(state, {
       splitters: {
         ...state.splitters,
         [name]: size
+      }
+    })
+  }
+
+  @ActionReducer()
+  setTab(name:UITabNames, tab: number | string) {
+    return (state: UIState) => patchState(state, {
+      tabs: {
+        ...state.tabs,
+        [name]: tab
       }
     })
   }

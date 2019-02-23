@@ -23,6 +23,7 @@ import ReplayIcon from "@material-ui/icons/Replay"
 import EditIcon from "@material-ui/icons/Edit"
 import BookmarkIcon from "@material-ui/icons/Bookmark"
 import {runWorkspace, saveSnippet, setCurrentSnippet} from "renderer/actions/WorkspaceActions"
+import {useCallback, useEffect, useState} from "react"
 
 const log = getLogger(__filename)
 
@@ -139,26 +140,37 @@ interface P extends IThemedProperties<Classes> {
 
 
 export default StyledComponent<P>(baseStyles)(function ReplSnippet(props: P): React.ReactElement<P> {
-  const {snippet, classes} = props
+  const
+    {snippet, classes} = props,
+    [codeHighlighted,setCodeHighlighted] = useState<any | null>(null)
+
+  useEffect(() => {
+    setCodeHighlighted({__html: ReplCommon.highlight(snippet.code, 'js')})
+  },[snippet.code])
+
+  const
+    setSnippet = useCallback(() => setCurrentSnippet(snippet),[snippet]),
+    runSnippet = useCallback(() => runWorkspace(getWorkspace(), snippet),[snippet]),
+    save = useCallback(() => saveSnippet(snippet),[snippet])
+
   return <div className={classNames(`${classes.root} repl-snippet CodeMirror`, {})}>
     <Paper className={classes.paper}>
       <div className="top repl-entry-message">
         <div className='entry repl-entry-command-container'>
-          <div className='source repl-entry-message-output'
-               >
-            <pre dangerouslySetInnerHTML={{__html: ReplCommon.highlight(snippet.code, 'js')}} />
+          <div className='source repl-entry-message-output'>
+            <pre dangerouslySetInnerHTML={codeHighlighted} />
           </div>
           {/*<ReplOutputTranspile output={snippet.code} html={ReplCommon.highlight(snippet.code,'js')} />*/}
           {/*<div className="repl-entry-message-command" dangerouslySetInnerHTML={{__html:ReplCommon.highlight(snippet.code)}}/>*/}
         </div>
         <div className="controls">
-          <IconButton className="button" onClick={() => setCurrentSnippet(snippet)}>
+          <IconButton className="button" onClick={setSnippet}>
             <EditIcon className="icon"/>
           </IconButton>
-          <IconButton className="button" onClick={() => runWorkspace(getWorkspace(), snippet)}>
+          <IconButton className="button" onClick={runSnippet}>
             <ReplayIcon className="icon"/>
           </IconButton>
-          <IconButton className="button" onClick={() => saveSnippet(snippet)}>
+          <IconButton className="button" onClick={save}>
             <BookmarkIcon className="icon"/>
           </IconButton>
         </div>

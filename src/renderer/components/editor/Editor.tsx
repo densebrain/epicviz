@@ -6,8 +6,8 @@ import 'codemirror/addon/hint/show-hint.css'
 import 'codemirror/addon/hint/show-hint'
 import 'codemirror/addon/selection/active-line'
 import 'codemirror/addon/selection/mark-selection'
-//import 'codemirror/addon/comment/comment'
-//import 'codemirror/addon/comment/continuecomment'
+import 'codemirror/addon/comment/comment'
+import 'codemirror/addon/comment/continuecomment'
 import 'codemirror/addon/display/placeholder'
 //import 'codemirror/addon/display/autorefresh'
 import 'codemirror/addon/edit/matchtags'
@@ -38,21 +38,21 @@ import {useCallback, useEffect, useRef, useState} from "react"
 import getLogger from "common/log/Logger"
 import {
   Fill,
-  FillWidth,
-  IThemedProperties,
+  FillWidth, FlexColumn,
+  IThemedProperties, makeHeightConstraint,
   makePadding,
   OverflowAuto,
-  PositionAbsolute,
+  PositionAbsolute, PositionRelative,
   rem,
   StyleDeclaration
 } from "renderer/styles/ThemedStyles"
 import classNames from 'classnames'
 import {StyledComponent} from "renderer/components/elements/StyledComponent"
 import {guard} from "typeguard"
-import {lighten} from "@material-ui/core/styles/colorManipulator"
 import * as Path from "path"
 import attachHistory from "renderer/components/editor/Editor.History"
 import attachInput from "renderer/components/editor/Editor.Input"
+import {addHotDisposeHandler} from "common/HotUtil"
 
 Object.assign(global,{
   CodeMirror
@@ -83,28 +83,37 @@ const
 //   return null
 // }
 
+type Classes = "root"
 
-function baseStyles(theme: Theme): StyleDeclaration {
+function baseStyles(theme: Theme): StyleDeclaration<Classes> {
   const
     {palette, components: {TextField}} = theme,
     {primary, secondary} = palette,
     gutterWidth = 30,
-    maxHeight = "25vh"
+    maxHeight = ({fill}:P):(string | number) => fill ? "100%" : "25vh"
 
   return {
     root: {
+      ...FlexColumn,
       ...FillWidth,
+      ...makeHeightConstraint(({fill}:P):(string | number) => fill ? "100%" : "auto"),
       ...OverflowAuto,
+      ...PositionRelative,
+      "& .CodeMirror": {
+        ...Fill
+      }
     },
-    "@global": [{
+
+    "@global": {
       ".CodeMirror": {
         borderRadius: theme.spacing.unit / 2,
-        height: "auto",
-        ...OverflowAuto,
+        height: ({fill}:P):(string | number) => fill ? "100%" : "auto",
+        ...PositionRelative,
+        //...OverflowAuto,
 
-        "&.cm-s-darcula": {
-          backgroundColor: lighten(TextField.colors.bg, 0.1)
-        },
+        // "&.cm-s-darcula": {
+        //   backgroundColor: lighten(TextField.colors.bg, 0.1)
+        // },
         "&, & *": {
           fontFamily: "FiraCode",
           fontSize: rem(1.1)
@@ -116,7 +125,7 @@ function baseStyles(theme: Theme): StyleDeclaration {
             visibility: 'visible !important'
           }
         },
-        "&.CodeMirror-focused::after": [theme.focus, PositionAbsolute, Fill, {
+        "&.CodeMirror-focused::after": {...theme.focus, ...PositionAbsolute, ...Fill,
           top: 0,
           left: 0,
           right: 0,
@@ -124,31 +133,34 @@ function baseStyles(theme: Theme): StyleDeclaration {
           zIndex: 10,
           content: "' '",
           pointerEvents: "none"
-        }],
-        "& .CodeMirror-gutter": [{
+        },
+        "& .CodeMirror-gutter": {
           width: gutterWidth + (theme.spacing.unit / 2)
-        }],
-        "& .CodeMirror-linenumber": [makePadding(0), {
+        },
+        "& .CodeMirror-linenumber": {...makePadding(0),
           width: gutterWidth
-        }],
+        },
 
-        "& .CodeMirror-linenumbers": [makePadding(0, theme.spacing.unit), {
+        "& .CodeMirror-linenumbers": {...makePadding(0, theme.spacing.unit),
           width: gutterWidth
-        }],
-        "& .CodeMirror-lines": [makePadding(theme.spacing.unit * 2, theme.spacing.unit), {
+        },
+        "& .CodeMirror-lines": {
+          ...makePadding(theme.spacing.unit * 2, theme.spacing.unit),
           //width: gutterWidth,
-          "& .CodeMirror-gutter-wrapper": [{
+          "& .CodeMirror-gutter-wrapper": {
             //left: `calc(-${theme.spacing.unit * 2}px - ${gutterWidth}px) !important`
-          }]
-        }]
+          }
+        }
       }
-    }]
-  }
+    }
+  } as any
 }
 
 interface P extends IThemedProperties {
   value: string
   file:string
+  clearOnChange?:boolean
+  fill?: boolean | null
   language?:string
   autoFocus?: boolean
   onValueChange: (source: string) => void
@@ -194,7 +206,7 @@ function getEditorSizes():EditorSizes {
 
 export default StyledComponent<P>(baseStyles,{withTheme:true})(function Editor(props: P): React.ReactElement<P> {
   const
-    {value, theme,classes, language = "javascript", file:inFile,className, onValueChange, autoFocus = false, ...other} = props,
+    {value, fill = false,theme,classes,clearOnChange = false, language = "javascript", file:inFile,className, onValueChange, autoFocus = false, ...other} = props,
     wrapperRef = useRef<HTMLDivElement | null>(null),
     textareaRef = useRef<HTMLTextAreaElement | null>(null),
     codeMirrorRef = useRef<CodeMirror.Editor | null>(null),
@@ -224,9 +236,17 @@ export default StyledComponent<P>(baseStyles,{withTheme:true})(function Editor(p
         value: doc,
         autofocus: autoFocus,
         //lineWrapping: true,
+        indentWithTabs: false,
+        indentUnit: 2,
+        smartIndent: true,
+        tabSize: 2,
+        electricChars: true,
+        continueComments: true,
         styleSelectedText: true,
         lineNumbers: true,
         mode: language,
+        autoCloseBrackets: true,
+        closeBrackets: true,
         theme: "darcula"
       } as any)
 
@@ -237,6 +257,14 @@ export default StyledComponent<P>(baseStyles,{withTheme:true})(function Editor(p
 
 
     let cursorInterval:any = null
+    const clearCursorInterval = ():void => {
+      if (cursorInterval)
+        clearInterval(cursorInterval)
+
+      cursorInterval = null
+    }
+    addHotDisposeHandler(module,clearCursorInterval)
+
     const toggleCursor = (clear:boolean = false):void => {
       const cursors = $(".CodeMirror-cursors")
       cursors.css({
@@ -244,13 +272,30 @@ export default StyledComponent<P>(baseStyles,{withTheme:true})(function Editor(p
       })
     }
 
-    newEditor.on('blur', () => (cursorInterval = setInterval(toggleCursor,500)))
+    newEditor.on('blur', () => {
+      clearCursorInterval()
+      cursorInterval = setInterval(toggleCursor,500)
+    })
     newEditor.on('focus', () => {
-      cursorInterval && clearInterval(cursorInterval)
+      clearCursorInterval()
       toggleCursor(true)
     })
 
+    newEditor.on("keydown",(editor,event:KeyboardEvent) => {
+      if (event.key === "Escape") {
+        (editor as any).closeHint()
+        CodeMirror.signal(editor,"setDoc")
+      }
+
+      if (event.key === "l" && event.ctrlKey) {
+        CodeMirror.signal(editor,"epicFormat",editor)
+      }
+      //log.info("Key down", editor, event)
+    })
+
     newEditor.on("viewportChange", editor => {
+      if (fill) return
+
       const
         scrollInfo = editor.getScrollInfo(),
         doc = editor.getDoc(),
@@ -289,7 +334,12 @@ export default StyledComponent<P>(baseStyles,{withTheme:true})(function Editor(p
 
   useEffect(() => {
     if (codeMirrorRef.current) {
-      codeMirrorRef.current.setValue(value)
+      if (clearOnChange) {
+        const doc = new CodeMirror.Doc(value || "", "javascript")
+        codeMirrorRef.current.swapDoc(doc)
+      } else {
+        codeMirrorRef.current.setValue(value)
+      }
     }
   },[file])
   //cm-s-darcula

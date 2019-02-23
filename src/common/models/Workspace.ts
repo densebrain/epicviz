@@ -96,6 +96,7 @@ export class Workspace {
       state = {
         history: this.history.map(it => ({...it,output:[]})),
         snippet: this.snippet,
+        savedSnippets: this.savedSnippets,
         outputs: []
       }
 

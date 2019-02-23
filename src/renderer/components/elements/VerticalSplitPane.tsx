@@ -13,7 +13,7 @@ export interface IVerticalSplitPaneProps extends IThemedProperties {
   minSize?: number|string
   maxSize?: number|string
   primary?: "first"|"second"
-  onChange?: (event:any) => any
+  onChanged?: (newSize:number) => any
 }
 
 /**
@@ -32,7 +32,7 @@ export class VerticalSplitPane extends React.Component<IVerticalSplitPaneProps, 
   }
 
   render() {
-    const {classes, children,onChange,...other} = this.props
+    const {classes, children,onChanged,...other} = this.props
 
     return <SplitPane
       className={classes.root}
@@ -41,7 +41,7 @@ export class VerticalSplitPane extends React.Component<IVerticalSplitPaneProps, 
       pane1ClassName={classes.pane1}
       pane2ClassName={classes.pane2}
       split="vertical"
-      onDragFinished={onChange}
+      onDragFinished={onChanged}
       {...other}
     >
       {children}

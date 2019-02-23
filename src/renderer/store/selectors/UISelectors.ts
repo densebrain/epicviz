@@ -7,7 +7,8 @@ import Dexie from "dexie"
 import db from "renderer/db/ObjectDatabase"
 import getLogger from "common/log/Logger"
 import * as _ from 'lodash'
-import UIState from "renderer/store/state/UIState"
+import UIState, {UISplitterNames, UITabNames} from "renderer/store/state/UIState"
+import {ISnippet} from "common/models/Workspace"
 
 const log = getLogger(__filename)
 
@@ -23,7 +24,20 @@ export function uiSelector<T>(
   return ((state:IRootState,props:any) => fn(state.UIState,props) as T) as any
 }
 
+export function makeSplitterSelector<K extends UISplitterNames>(key:K):Selector<IRootState,string | number> {
+  return uiSelector(state => state.splitters[key])
+}
+
+export function makeTabSelector<K extends UITabNames>(key:K):Selector<IRootState,string | number> {
+  return uiSelector(state => state.tabs[key])
+}
+
 export const projectDirSelector = uiSelector(state => state.projectDir || "")
+
+export const savedSnippetsSelector = createSelector(
+  uiSelector(state => state.workspace.savedSnippets),
+  (snippets:Array<ISnippet>):Array<ISnippet> => snippets.sortBy(it => it.name)
+)
 
 export type SearchChipSelector = OutputSelector<IRootRendererState, Array<ISearchChip>, (res: {[id:string]:Array<ISearchChipData>}) => Array<ISearchChip>>
 

@@ -99,6 +99,7 @@ function makeConfig(isMain) {
     cache: true,
 
     module: {
+      noParse: [/prettier/],
       rules: [
         {
           test: /plotly\.js\/.*\.js/,

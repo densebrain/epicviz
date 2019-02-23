@@ -16,7 +16,10 @@ export default function attachInput(editor:CodeMirror.Editor):void {
     },
     "Alt-P": function (editor:CodeMirror.Editor) {
       CodeMirror.signal(editor,"epicShowDocs",editor)
-    }
+    },
+    "Ctrl-L,Cmd-L": function (editor:CodeMirror.Editor) {
+      CodeMirror.signal(editor,"epicFormat",editor)
+    },
     // "Alt-.": function (cm) {
     //   server.jumpToDef(cm);
     // },

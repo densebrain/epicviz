@@ -3,10 +3,10 @@
 
 @mixin replEditor($theme) {
   .CodeMirror {
-    height: auto;
+    //height: auto;
     font-family: inherit;
-    background-color: if($theme == $dark-theme, $dark-app-background-color, $lt-app-background-color);
-    color: if($theme == $dark-theme, $dark-app-color, $lt-app-color);
+    //background-color: if($theme == $dark-theme, $dark-app-background-color, $lt-app-background-color);
+    //color: if($theme == $dark-theme, $dark-app-color, $lt-app-color);
   }
 
   .CodeMirror-gutters {

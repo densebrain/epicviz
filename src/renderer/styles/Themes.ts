@@ -25,7 +25,7 @@ const log = getLogger(__filename)
  */
 const darkPalette = {
   type: "dark",
-  primary: makeMaterialPalette("#0F111A", "A200", "A400", "A700"), // app icons and text
+  primary: makeMaterialPalette("#2F313A", "A200", "A400", "A700"), // app icons and text
   secondary: makeMaterialPalette("#445fe9", "A200", "A400", "A700"),
   background: makeMaterialPalette("#555555", "A200", "A400", "A700"),
   text: makeMaterialPalette("rgba(0,0,0,0.8)", "A200", "A400", "A700"),
@@ -71,6 +71,11 @@ function makeDarkThemeExt() {
       highlight: {
         background: action.main,
         color: action.contrastText
+      }
+    },
+    NoContent = {
+      colors: {
+        color: darken(primary.contrastText,0.3)
       }
     },
     Input = {
@@ -130,7 +135,7 @@ function makeDarkThemeExt() {
       colors: {
         splitter: darken(primary.dark, 0.8),
         splitterHover: action.main,
-        pane1Bg: darken(primary.dark, 0.2),
+        pane1Bg: darken(primary.main,0.3),
         pane2Bg: primary.dark
       }
     },
@@ -233,11 +238,15 @@ function makeDarkThemeExt() {
         text: darken(primary.contrastText, 0.3)
       }
     },
-
+    List = {
+      colors: {
+        background: `border-box radial-gradient(${primary.dark}, ${darken(primary.dark, 0.2)})`
+      }
+    },
     ListItem = {
       colors: Run(() => {
         const normal = {
-            bg: `border-box radial-gradient(${darken(primary.dark, 0.4)}, ${darken(primary.dark, 0.5)})`,//darken(primary.dark,0.4),
+            bg: `border-box radial-gradient(${darken(primary.main, 0.4)}, ${darken(primary.main, 0.5)})`,//darken(primary.dark,0.4),
             accessory: darken(primary.contrastText, 0.7),
             subtext: darken(primary.contrastText, 0.7),
             topBg: Transparent,
@@ -321,7 +330,9 @@ function makeDarkThemeExt() {
       BlockingWorkProgress,
       MenuList,
       SearchProvider,
-      ListItem
+      List,
+      ListItem,
+      NoContent
     },
 
     outline,

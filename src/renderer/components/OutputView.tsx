@@ -14,10 +14,11 @@ import Tabs from "@material-ui/core/Tabs/Tabs"
 import AppBar from "@material-ui/core/AppBar/AppBar"
 import Tab from "@material-ui/core/Tab/Tab"
 import {useCallback, useEffect, useRef, useState} from "react"
-import {OutputType, Workspace} from "common/models/Workspace"
+import {IOutput, OutputType, Workspace} from "common/models/Workspace"
 import OutputViewMapPath from "renderer/components/OutputViewMapPath"
 import OutputViewPlot2D from "renderer/components/OutputViewPlot2D"
 import ReplOutput from "./output/ReplOutput"
+import NoContent from "renderer/components/NoContent"
 
 const log = getLogger(__filename)
 
@@ -32,7 +33,7 @@ function baseStyles(theme: Theme): StyleDeclaration<Classes> {
   return {
     root: {
       ...Fill,
-      ...FlexColumn,
+      ...FlexColumnCenter,
       ...PositionRelative
     },
     content: {
@@ -62,60 +63,62 @@ interface P extends IThemedProperties<Classes> {
 }
 
 interface SP {
-  workspace:Workspace
+  //workspace:Workspace
+  outputs: Array<IOutput>
 }
 
 const selectors = {
-  workspace: (state:IRootRendererState) => state.UIState.workspace
+  //workspace: (state:IRootRendererState) => state.UIState.workspace
+  outputs: (state: IRootRendererState) => state.UIState.workspace.outputs
 } as Selectors<P, SP>
 
 
 export default StyledComponent<P, SP>(baseStyles, selectors)(function OutputView(props: SP & P): React.ReactElement<P> {
   const
-    {classes,workspace} = props,
-    [tab,setTab] = useState<number>(0),
+    {classes, outputs} = props,
+    [tab, setTab] = useState<number>(0),
     errorRef = useRef<OutputViewErrorBoundary>(null),
-    output = workspace.outputs[tab]
+    output = outputs[tab]
 
   useEffect(() => {
-    const {outputs} = workspace
-    setTab(Math.max(outputs.length - 1,0))
-    // if (tab >= outputs.length || tab < 0)
-    //   setTab(0)
-  },[workspace.outputs])
+    setTab(Math.max(outputs.length - 1, 0))
+  }, [outputs])
 
   useEffect(() => {
     if (errorRef.current)
       errorRef.current.clearError()
-  },[errorRef.current,tab])
+  }, [errorRef.current, tab])
 
   return <div className={classes.root}>
-    <AppBar position="static" color="primary">
-      <Tabs
-        value={tab}
-        onChange={(e, tab) => setTab(tab)}
-        indicatorColor="primary"
-        textColor="secondary"
-        scrollButtons="auto"
-      >
-        {workspace.outputs.map((output,index) =>
-          <Tab key={output.id} value={index} label={output.name} />
-        )}
+    {!outputs.length ? <NoContent label="No output views"/> : <>
+      <AppBar position="static" color="primary">
+        <Tabs
+          value={tab}
+          onChange={(e, tab) => setTab(tab)}
+          indicatorColor="primary"
+          textColor="secondary"
+          scrollButtons="auto"
+        >
+          {outputs.map((output, index) =>
+            <Tab key={output.id} value={index} label={output.name}/>
+          )}
 
-      </Tabs>
-    </AppBar>
-    <div className={`${classes.content} repl-snippet`}>
-      {/* WRAPPED IN ERROR BOUNDARY IN CASE BAD DATA IS PROVIDED*/}
-      <OutputViewErrorBoundary ref={errorRef} classes={classes}>
-        {output && (
-          output.type === "map-path" ?
-            <OutputViewMapPath output={output} /> :
-            output.type === "plot-2d" ?
-              <OutputViewPlot2D output={output} /> :
-            null
-        )}
-      </OutputViewErrorBoundary>
-    </div>
+        </Tabs>
+      </AppBar>
+      < div className={`${classes.content} repl-snippet`}>
+        {/* WRAPPED IN ERROR BOUNDARY IN CASE BAD DATA IS PROVIDED*/}
+        <OutputViewErrorBoundary ref={errorRef} classes={classes}>
+          {output && (
+            output.type === "map-path" ?
+              <OutputViewMapPath output={output}/> :
+              output.type === "plot-2d" ?
+                <OutputViewPlot2D output={output}/> :
+                null
+          )}
+        </OutputViewErrorBoundary>
+      </div>
+    </>
+    }
   </div>
 })
 
@@ -128,7 +131,7 @@ interface IErrorState {
   errorInfo: React.ErrorInfo | null
 }
 
-class OutputViewErrorBoundary extends React.Component<IErrorProps,IErrorState> {
+class OutputViewErrorBoundary extends React.Component<IErrorProps, IErrorState> {
 
   constructor(props) {
     super(props)
@@ -139,7 +142,7 @@ class OutputViewErrorBoundary extends React.Component<IErrorProps,IErrorState> {
     }
   }
 
-  static renderError({classes}:IErrorProps, error: Error, errorInfo: React.ErrorInfo): React.ReactNode {
+  static renderError({classes}: IErrorProps, error: Error, errorInfo: React.ErrorInfo): React.ReactNode {
     return <div className={`${classes.errorWrapper} repl-entry-message`}>
       <div className={`${classes.error} repl-entry-message-output output`}>
         <pre className="repl-entry-command-container">{ReplOutput.transformObject(error)}</pre>
@@ -147,26 +150,26 @@ class OutputViewErrorBoundary extends React.Component<IErrorProps,IErrorState> {
     </div>
   }
 
-  static getDerivedStateFromError(error:Error | null):Partial<IErrorState> {
-    return { error }
+  static getDerivedStateFromError(error: Error | null): Partial<IErrorState> {
+    return {error}
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo): void {
     this.setState({error, errorInfo})
   }
 
-  clearError():void {
+  clearError(): void {
     this.setState({
-      error:null,
-      errorInfo:null
+      error: null,
+      errorInfo: null
     })
   }
 
   render(): React.ReactNode {
     const
-      {error,errorInfo} = this.state,
+      {error, errorInfo} = this.state,
       {children} = this.props
 
-    return error ? OutputViewErrorBoundary.renderError(this.props,error,errorInfo) : <>{children}</>
+    return error ? OutputViewErrorBoundary.renderError(this.props, error, errorInfo) : <>{children}</>
   }
 }

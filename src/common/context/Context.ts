@@ -11,6 +11,8 @@ export async function makeReplContext(log: ILogger, dir: string) {
     pkg:  (await import("./PackageManagement")).makePackageManagement(log, context, dir),
     outputs: (await import("./OutputManagement")).makeOutputManagement(log, context),
     plot: (await import("./PlotManagement")).makePlotManagement(log, context),
+    snippets: (await import("./SnippetManagement")).makeSnippetManagement(log, context),
+
   }
 
   Object.assign(context,completeContext)
