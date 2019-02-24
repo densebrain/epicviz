@@ -3,7 +3,7 @@ import * as CodeMirror from "codemirror"
 export default function attachInput(editor:CodeMirror.Editor):void {
 
   editor.on("cursorActivity", function (editor:CodeMirror.Editor) {
-    CodeMirror.signal(editor,"epicUpdateArgHints")
+    CodeMirror.signal(editor,"epicUpdateArgHints",editor)
   })
 
   editor.setOption("extraKeys", {

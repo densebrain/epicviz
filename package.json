@@ -161,6 +161,7 @@
     "tsx-control-statements": "^2.12.2",
     "typescript": "^3.2.2",
     "typescript-eslint-parser": "^21.0.2",
+    "typescript-transpile-only": "0.0.4",
     "url-loader": "^1.1.2",
     "webpack": "4.29.0",
     "webpack-cli": "3.2.1",
@@ -184,7 +185,7 @@
     "release": "npm version patch && npm run publish:mac && npm run publish:linux && npm run publish:win",
     "storybook": "start-storybook -p 9001 -c .storybook",
     "postinstall": "rm -Rf $(find node_modules/@types/*/node_modules -name react)",
-    "defs:compile": "tsc -p tsconfig.json && cd dist/out/common/context && ../../../../node_modules/tern/bin/condense --name context --plugin modules --no-spans --plugin commonjs --plugin node --plugin node_resolve *Management.js > context.json && cd ../../../../",
+    "defs:compile": "tsc-transpile-only -p tsconfig.json && cd dist/out/src/common/context && ../../../../../node_modules/tern/bin/condense --name context --plugin modules --no-spans --plugin commonjs --plugin node --plugin node_resolve *Management.js > context.json && cd ../../../../../",
     "defs:watch": "node ./etc/scripts/context-generation.js"
   },
   "build": {

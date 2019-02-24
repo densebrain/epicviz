@@ -1,11 +1,16 @@
 {
-"compilerOptions": {
-    "lib": ["esnext","dom","dom.iterable"],
+  "compilerOptions": {
+    "lib": [
+      "esnext",
+      "dom",
+      "dom.iterable"
+    ],
     "target": "es2017",
     "module": "commonjs",
     "moduleResolution": "node",
     "noImplicitReturns": true,
     "noEmitOnError": true,
+    "pretty": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "preserveConstEnums": true,
@@ -15,14 +20,19 @@
     "baseUrl": "./src",
     "outDir": "./dist/out",
     "paths": {
-      "common/*": [ "./common/*" ],
-      "renderer/*": [ "./renderer/*" ],
-      "main/*": [ "./main/*" ],
+      "common/*": [
+        "./common/*"
+      ],
+      "renderer/*": [
+        "./renderer/*"
+      ],
+      "main/*": [
+        "./main/*"
+      ],
       "*": [
         "*"
       ]
     }
-
   },
   "compileOnSave": true,
   "include": [
