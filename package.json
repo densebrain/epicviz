@@ -86,7 +86,7 @@
     "typeguard": "0.0.12",
     "unzip": "^0.1.11",
     "uuid": "^3.3.2",
-    "yarn": "^1.13.0",
+    "yarn": "^1.17.3",
     "yarn-api": "^1.1.0"
   },
   "devDependencies": {
