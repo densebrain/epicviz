@@ -50,7 +50,7 @@
     "moment": "^2.23.0",
     "moment-timezone": "^0.5.23",
     "muya": "^0.1.2",
-    "npm": "^6.8.0",
+    "npm": "^6.13.4",
     "plotly.js-dist": "^1.44.4",
     "prelude-ts": "^0.8.2",
     "prettier": "^1.16.4",
