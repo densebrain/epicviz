@@ -44,7 +44,7 @@
     "jss": "^9.8.7",
     "jsx-control-statements": "^3.2.8",
     "leaflet": "^1.4.0",
-    "lodash": "^4.17.4",
+    "lodash": "^4.17.19",
     "md5": "^2.2.1",
     "module-alias": "^2.2.0",
     "moment": "^2.23.0",
