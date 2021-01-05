@@ -20,7 +20,7 @@
     "@rauschma/stringio": "^1.4.0",
     "acorn": "6.1.0",
     "async-file": "^2.0.2",
-    "axios": "^0.18.0",
+    "axios": "^0.21.1",
     "babel-runtime": "^6.26.0",
     "bluebird": "^3.5.3",
     "c3": "^0.6.12",
