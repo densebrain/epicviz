@@ -74,7 +74,7 @@
     "redux-thunk": "^2.3.0",
     "reflect-metadata": "^0.1.12",
     "reselect": "^4.0.0",
-    "shelljs": "^0.8.1",
+    "shelljs": "^0.8.5",
     "short-id": "0.1.0-1",
     "source-map-support": "^0.5.3",
     "stacktrace-js": "^2.0.0",
