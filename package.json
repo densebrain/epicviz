@@ -47,7 +47,7 @@
     "lodash": "^4.17.4",
     "md5": "^2.2.1",
     "module-alias": "^2.2.0",
-    "moment": "^2.23.0",
+    "moment": "^2.29.4",
     "moment-timezone": "^0.5.23",
     "muya": "^0.1.2",
     "npm": "^6.8.0",
