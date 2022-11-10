@@ -129,7 +129,7 @@
     "cross-env": "^5.1.3",
     "css-hot-loader": "^1.4.3",
     "css-loader": "^2.1.0",
-    "electron": "^4.0.2",
+    "electron": "^18.3.7",
     "electron-builder": "20.36.1",
     "electron-react-devtools": "^0.5.3",
     "electron-webpack": "file:lib/electron-webpack-2.6.1.tgz",
